@@ -1,6 +1,8 @@
 import { ClaimCards, type ClaimRow, type StudentOption } from "@/components/staff/claim-cards";
 import { PageHead, schoolName } from "@/components/staff/page-head";
+import { QueueBoard } from "@/components/pickup/queue-board";
 import { requireSchoolRole } from "@/lib/auth/guards";
+import { loadQueue } from "@/lib/pickup/queue";
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -11,7 +13,8 @@ export default async function TeacherPage() {
   const { lang, t } = await getT();
   const supabase = await createClient();
   const myRooms = me.classroom_ids;
-  const [rooms, students, claims] = await Promise.all([
+  const [queue, rooms, students, claims] = await Promise.all([
+    loadQueue(supabase, school.id), // ฐานข้อมูลกรองให้เหลือเฉพาะนักเรียนห้องของครูคนนี้
     myRooms.length ? supabase.from("classrooms").select("id,name").in("id", myRooms).order("name") : Promise.resolve({ data: [] as { id: string; name: string }[] }),
     // RLS: ครูเห็นเฉพาะนักเรียนในห้องที่ตัวเองเป็นครูประจำชั้น
     supabase.from("students").select("id,first_name,last_name,nickname,classroom_id").eq("status", "active").order("first_name"),
@@ -22,6 +25,9 @@ export default async function TeacherPage() {
     <div className="mx-auto max-w-3xl space-y-8">
       <PageHead title={t.teacher_title} school={schoolName(school, lang)} />
       {myRooms.length === 0 && <p className="rounded-xl bg-warn-bg px-4 py-3 text-warn">{t.teacher_no_class}</p>}
+      {myRooms.length > 0 && (
+        <QueueBoard rows={queue} topics={myRooms.map((id) => `class:${id}`)} fingerprintUrl={`/api/live?scope=school&id=${school.id}`} canVerify={false} title={t.queue_teacher_title} />
+      )}
       {myRooms.length > 0 && (
         <section className="space-y-3">
           <h2 className="text-lg font-semibold">{t.teacher_claims_title}</h2>

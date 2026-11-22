@@ -88,3 +88,22 @@ export async function cleanup() {
   created.users.length = 0;
   created.schools.length = 0;
 }
+
+/** ผู้ปกครองที่มีผู้ปกครอง+รถ+การผูกนักเรียนที่อนุมัติแล้ว (พร้อม check-in) */
+export async function makeParent(tag: string, school: string, classroom: string, students: string[]) {
+  const u = await makeUser(tag);
+  const a = admin();
+  await a.from("profiles").update({ display_name: `ผู้ปกครอง ${tag}`, role: "parent", onboarded_at: new Date().toISOString() }).eq("id", u.id);
+  const person = (await a.from("guardian_persons").insert({ user_id: u.id, name: `คุณ ${tag}`, phone: "0812345678", is_primary: true }).select("id").single()).data!.id as string;
+  const vehicle = (await a.from("vehicles").insert({ user_id: u.id, plate: "กข" + rid().slice(0, 4).replace(/[a-f]/g, "1"), province: "กรุงเทพมหานคร", color: "ขาว", model: "Civic" }).select("id").single()).data!.id as string;
+  for (const s of students) {
+    const { error } = await a.from("guardian_links").insert({ user_id: u.id, school_id: school, student_id: s, claimed_name: "เด็ก " + tag, claimed_classroom_id: classroom, status: "approved" });
+    if (error) throw new Error("link failed: " + error.message);
+  }
+  return { ...u, person, vehicle };
+}
+
+export async function setSchoolLocation(school: string, patch: Record<string, unknown> = {}) {
+  await admin().from("schools").update({ lat: 13.7563, lng: 100.5018 }).eq("id", school);
+  if (Object.keys(patch).length) await admin().from("school_settings").update(patch).eq("school_id", school);
+}

@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Building2, ClipboardCheck, Ellipsis, GraduationCap, House, ListOrdered, School, Settings, Smartphone, UserRound, Users, UsersRound, X } from "lucide-react";
+import { Building2, CarFront, ClipboardCheck, Ellipsis, GraduationCap, House, ListOrdered, School, Settings, Smartphone, UserRound, Users, UsersRound, X } from "lucide-react";
 import { AsyncButton, AsyncLink } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import type { NavIcon } from "@/config/nav";
@@ -11,7 +11,7 @@ export type NavEntry = { href: string; label: string; icon: NavIcon };
 
 const ICONS = {
   home: House, parent: Smartphone, gate: ListOrdered, children: UsersRound, account: UserRound, teacher: GraduationCap,
-  classroom: School, students: Users, staff: UsersRound, settings: Settings, approvals: ClipboardCheck, platform: Building2,
+  classroom: School, students: Users, staff: UsersRound, settings: Settings, approvals: ClipboardCheck, platform: Building2, pickup: CarFront,
 } as const;
 const MAX_BAR = 4;
 

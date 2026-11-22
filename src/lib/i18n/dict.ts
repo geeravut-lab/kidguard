@@ -6,12 +6,13 @@ import { coreTh, coreEn } from "./messages/core";
 import { authTh, authEn } from "./messages/auth";
 import { parentTh, parentEn } from "./messages/parent";
 import { staffTh, staffEn } from "./messages/staff";
+import { pickupTh, pickupEn } from "./messages/pickup";
 
-export const th = { ...coreTh, ...authTh, ...parentTh, ...staffTh } as const;
+export const th = { ...coreTh, ...authTh, ...parentTh, ...staffTh, ...pickupTh } as const;
 
 export type Dict = { [K in keyof typeof th]: string };
 
-export const en = { ...coreEn, ...authEn, ...parentEn, ...staffEn } satisfies Dict;
+export const en = { ...coreEn, ...authEn, ...parentEn, ...staffEn, ...pickupEn } satisfies Dict;
 
 export type Lang = "th" | "en";
 export const LANGS: readonly Lang[] = ["th", "en"] as const;

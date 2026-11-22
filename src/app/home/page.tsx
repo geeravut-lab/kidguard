@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { CarFront, Clock3, GraduationCap } from "lucide-react";
 import { ChildrenSection, StatusChip } from "@/components/parent/sections";
+import { AsyncLink } from "@/components/ui";
 import { requireMe } from "@/lib/auth/guards";
 import { getAuthInfo, postLoginPath } from "@/lib/auth/me";
 import { getT } from "@/lib/i18n/server";
@@ -27,16 +28,16 @@ export default async function ParentHomePage() {
     <div className="mx-auto max-w-2xl space-y-5">
       <h1 className="text-2xl font-bold">{t.home_parent_title}</h1>
 
-      <section className="space-y-3 rounded-2xl bg-primary p-5 text-primary-fg">
-        <p className="flex items-center gap-2 text-lg font-semibold">
-          <CarFront className="size-6" aria-hidden="true" /> {t.home_pickup_soon}
+      {approved.length > 0 && (
+        <AsyncLink href="/pickup" className="flex items-center gap-3 rounded-2xl bg-primary p-5 text-lg font-semibold text-primary-fg hover:bg-primary-strong">
+          <CarFront className="size-7" aria-hidden="true" /> {t.pickup_start_button}
+        </AsyncLink>
+      )}
+      {approved.length > 0 && notReady && (
+        <p className="flex items-center gap-2 rounded-xl bg-warn-bg px-4 py-3 text-sm text-warn">
+          <Clock3 className="size-4" aria-hidden="true" /> {t.home_school_not_ready}
         </p>
-        {notReady && (
-          <p className="flex items-center gap-2 text-sm opacity-90">
-            <Clock3 className="size-4" aria-hidden="true" /> {t.home_school_not_ready}
-          </p>
-        )}
-      </section>
+      )}
 
       {approved.length === 0 && others.length === 0 && <p className="text-ink-soft">{t.home_parent_empty}</p>}
 
