@@ -4,7 +4,7 @@
 แผนทั้งหมด: `docs/KIDGUARD-PLAN.md` · สารบัญ knowledge: `docs/Knowledge-Index.md`
 
 ## สถานะ
-แผน **อนุมัติแล้ว** (คำตัดสินใน `docs/KIDGUARD-PLAN.md` §16) · กำลังทำเฟส 0 · จบแต่ละเฟสต้องหยุดรอคำสั่งเฟสถัดไป
+แผน **อนุมัติแล้ว** (คำตัดสินใน `docs/KIDGUARD-PLAN.md` §16) · **เฟส 0 เสร็จและ deploy แล้ว** · รอคำสั่งเริ่มเฟส 1 · จบแต่ละเฟสต้องหยุดรอคำสั่งเฟสถัดไป
 
 ## ข้อมูลระบบ
 - Production: https://kidguards.vercel.app/ (ยึดชื่อนี้ — มี s; ไม่ใช่ `kidguard.vercel.app` ในตัวอย่างของ SSO doc)
@@ -26,3 +26,10 @@
 9. ข้อความที่ผู้ใช้เห็นทุกจุดผ่านพจนานุกรม i18n (ไทยเป็นต้นฉบับ) และใช้ชื่อแพลตฟอร์ม/โรงเรียนที่ Admin ตั้ง ห้าม hard-code
 10. ใช้กฎข้ามทุกเรื่อง 8 ข้อใน `docs/Knowledge-Index.md` (เช่น เขียนแล้วต้อง `.select("id")` นับแถว, ซ่อนปุ่มไม่ใช่การปิดฟีเจอร์ ต้องเช็กที่ server, ค่าที่ admin ตั้งได้ห้ามซ้ำในหน้าเว็บ)
 11. ตอบเจ้าของเป็นภาษาไทย
+
+## วิธีทำงานในสภาพแวดล้อมนี้ (ย่อ)
+- คีย์ Supabase ไม่อยู่ในไฟล์: ดึงผ่าน Management API เข้า env ของ shell ชั่วคราว (`GET /v1/projects/<ref>/api-keys?reveal=true`) — token ของ Supabase/Vercel ถูก proxy ใส่ให้เองเมื่อเรียก `api.supabase.com` / `api.vercel.com` (ไม่ต้องส่ง header)
+- Node ต้องตั้ง `NODE_USE_ENV_PROXY=1` ถึงจะใช้ proxy ของ session (สคริปต์ migrate, build, next start)
+- ตรวจก่อน merge: `pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm test:e2e` (e2e ใช้ `next start` พอร์ต 3100); หลัง deploy: `E2E_BASE_URL=https://kidguards.vercel.app pnpm test:e2e`
+- Vercel project `kidguard` (team geeravut-lab): production จาก `main`; `vercel.json` ปิด deployment ของ `claude/*` และมี `ignoreCommand` กัน branch อื่นซ้ำอีกชั้น; env vars ตั้งเฉพาะ target production
+- Supabase region ap-northeast-2 (โซล); Vercel functions ตั้ง `icn1` ให้ใกล้ฐานข้อมูล

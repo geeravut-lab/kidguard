@@ -6,7 +6,12 @@ export default defineConfig({
   timeout: 30_000,
   retries: 0,
   reporter: "list",
-  use: { baseURL: process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`, trace: "off" },
+  use: {
+    baseURL: process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`,
+    trace: "off",
+    // รันกับ URL ภายนอกผ่าน proxy ของสภาพแวดล้อม (ทั้ง browser และ request fixture)
+    ...(process.env.E2E_BASE_URL && process.env.HTTPS_PROXY ? { proxy: { server: process.env.HTTPS_PROXY } } : {}),
+  },
   projects: [
     { name: "mobile-390x844", use: { ...devices["Pixel 7"], viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 } },
     { name: "desktop-1280x800", use: { viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 } },
