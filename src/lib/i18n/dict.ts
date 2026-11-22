@@ -1,0 +1,222 @@
+// พจนานุกรมเดียวสำหรับทั้งระบบ (ไม่มี import React — ใช้ได้ทั้ง server/client/metadata)
+// ไทยเป็นต้นฉบับ: key ที่ขาด/เกินในภาษาอังกฤษ = คอมไพล์ไม่ผ่าน (ดู docs/I18N-KNOWLEDGE.md)
+// ชื่อแอปเขียนด้วยชื่อเริ่มต้น "KidGuard" เสมอ แล้วสลับตอนอ่านด้วย applyBrandNames
+
+export const th = {
+  app_tagline: "รับนักเรียนกลับบ้านอย่างปลอดภัย",
+  app_description: "แจ้งการเดินทางมารับนักเรียน จัดคิวหน้าโรงเรียนแบบสด ให้ครูเตรียมนักเรียนได้ทันเวลา",
+  school_default_name: "โรงเรียนกรุงเทพคริสเตียน",
+
+  nav_home: "หน้าแรก",
+  nav_preview_parent: "มุมผู้ปกครอง",
+  nav_preview_gate: "จอประตูโรงเรียน",
+  nav_install: "ติดตั้งแอป",
+  nav_more: "เพิ่มเติม",
+  nav_close: "ปิด",
+  nav_main: "เมนูหลัก",
+  nav_back_to: "กลับไป{page}",
+  skip_to_content: "ข้ามไปยังเนื้อหา",
+
+  lang_th: "ไทย",
+  lang_en: "English",
+  lang_switch: "เปลี่ยนภาษา",
+
+  common_loading: "กำลังดำเนินการ",
+  common_cancel: "ยกเลิก",
+  common_sample_notice: "ตัวอย่างหน้าจอ ใช้ข้อมูลสมมุติ ยังไม่ใช่ระบบจริง",
+
+  home_badge: "ปลอดโปร่ง ปลอดภัย",
+  home_title: "ผู้ปกครองกำลังมา ครูเตรียมนักเรียนได้ทัน",
+  home_lead:
+    "KidGuard ช่วยให้โรงเรียนเห็นลำดับผู้ปกครองที่กำลังจะถึง และให้ผู้ปกครองรู้ว่านักเรียนพร้อมแล้ว โดยไม่ต้องรอกันหน้าประตู",
+  home_status_title: "ระบบกำลังอยู่ระหว่างพัฒนา",
+  home_status_body: "ขณะนี้เปิดให้ดูตัวอย่างหน้าจอ การสมัครและเข้าสู่ระบบจะเปิดในขั้นถัดไป",
+  home_step1_title: "ผู้ปกครองกดแจ้งว่ากำลังมา",
+  home_step1_body: "เมื่ออยู่ในระยะที่โรงเรียนกำหนด กดครั้งเดียว ระบบบอกระยะและเวลาโดยประมาณ",
+  home_step2_title: "โรงเรียนเห็นลำดับสด",
+  home_step2_body: "ครูและเจ้าหน้าที่ประตูเห็นว่าใครจะถึงก่อน ลำดับปรับเองทันทีโดยไม่ต้องรีเฟรช",
+  home_step3_title: "รับแล้ว กดปิดงานได้ทั้งสองฝั่ง",
+  home_step3_body: "ผู้ปกครองหรือครูกดก่อนก็ได้ อีกฝ่ายได้รับแจ้งทันที",
+  home_privacy_title: "เก็บเท่าที่จำเป็น",
+  home_privacy_body:
+    "ไม่เก็บเส้นทางการเดินทาง ไม่ให้ผู้อื่นเห็นตำแหน่งของคุณ โรงเรียนเห็นเพียงระยะและเวลาโดยประมาณที่จะถึง",
+  home_cta_parent: "ดูตัวอย่างมุมผู้ปกครอง",
+  home_cta_gate: "ดูตัวอย่างจอประตูโรงเรียน",
+
+  install_button: "ติดตั้งเป็นแอปบนเครื่อง",
+  install_installed: "ติดตั้งแล้ว",
+  install_ios_title: "ติดตั้งบน iPhone / iPad",
+  install_ios_step1: "แตะปุ่มแชร์ในเบราว์เซอร์ Safari",
+  install_ios_step2: "เลือก “เพิ่มไปยังหน้าจอโฮม” (Add to Home Screen)",
+  install_ios_step3: "แตะ “เพิ่ม” แล้วเปิดแอปจากหน้าจอโฮม",
+  install_generic_title: "ติดตั้งบนเครื่องนี้",
+  install_generic_body:
+    "เปิดเมนูของเบราว์เซอร์ แล้วเลือก “ติดตั้งแอป” หรือ “เพิ่มไปยังหน้าจอหลัก” ถ้าไม่พบ ให้ลองเปิดด้วย Chrome หรือ Safari",
+  install_note_gps: "หมายเหตุ: ระหว่างเดินทางควรเปิดหน้าจอ KidGuard ค้างไว้ เพื่อให้โรงเรียนเห็นเวลาที่จะถึงอย่างต่อเนื่อง",
+
+  preview_parent_title: "กำลังเดินทางมารับ",
+  preview_parent_eta_label: "ถึงโรงเรียนใน",
+  preview_parent_eta_value: "ประมาณ {min} นาที",
+  preview_parent_distance: "ระยะทางอีก {km} กม.",
+  preview_parent_students: "นักเรียนที่มารับ",
+  preview_parent_driver: "ผู้ขับ",
+  preview_parent_vehicle: "รถ",
+  preview_parent_map_label: "แผนที่ (ตัวอย่าง) แสดงให้เฉพาะคุณเห็น",
+  preview_parent_privacy: "โรงเรียนเห็นเพียงระยะและเวลา ไม่เห็นเส้นทางของคุณ",
+  preview_parent_pickup_done: "รับนักเรียนแล้ว",
+  preview_parent_pickup_done_toast: "บันทึกแล้ว (ตัวอย่าง) — ครูจะได้รับแจ้งทันที",
+  preview_parent_cancel: "ยกเลิกการเดินทาง",
+
+  preview_gate_title: "คิวรับนักเรียน",
+  preview_gate_subtitle: "เรียงจากผู้ที่ใกล้ถึงที่สุด ปรับลำดับเองแบบสด",
+  preview_gate_col_order: "ลำดับ",
+  preview_gate_col_parent: "ผู้ปกครอง / ทะเบียนรถ",
+  preview_gate_col_student: "นักเรียน",
+  preview_gate_col_eta: "จะถึง",
+  preview_gate_col_distance: "ระยะ",
+  preview_gate_col_action: "การทำงาน",
+  preview_gate_status_arrived: "ถึงประตูแล้ว",
+  preview_gate_status_on_the_way: "กำลังมา",
+  preview_gate_status_called: "เรียกนักเรียนแล้ว",
+  preview_gate_call: "เรียกนักเรียน",
+  preview_gate_release: "ส่งนักเรียนแล้ว",
+  preview_gate_minutes: "{min} นาที",
+  preview_gate_now: "ถึงแล้ว",
+  preview_gate_meters: "{m} ม.",
+  preview_gate_km: "{km} กม.",
+  preview_gate_updated: "อัปเดตล่าสุดเมื่อสักครู่",
+
+  offline_title: "ออฟไลน์อยู่",
+  offline_body: "ไม่มีการเชื่อมต่ออินเทอร์เน็ต ลองใหม่เมื่อสัญญาณกลับมา ข้อมูลของคุณจะไม่ถูกเก็บไว้ในเครื่องนี้",
+  offline_retry: "ลองใหม่",
+
+  not_found_title: "ไม่พบหน้านี้",
+  not_found_body: "หน้าที่คุณเปิดอาจถูกย้ายหรือไม่มีอยู่",
+  not_found_home: "กลับหน้าแรก",
+  error_title: "เกิดข้อผิดพลาด",
+  error_body: "ระบบทำงานไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+  error_retry: "ลองใหม่",
+
+  err_generic: "ทำรายการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+  err_network: "เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่",
+  err_rate_limited: "ทำรายการถี่เกินไป กรุณารอสักครู่",
+} as const;
+
+export type Dict = { [K in keyof typeof th]: string };
+
+export const en = {
+  app_tagline: "Safe pickup for every student",
+  app_description:
+    "Let parents announce they are on the way and give the school a live pickup queue, so teachers can get students ready in time.",
+  school_default_name: "Krungthep Christian School",
+
+  nav_home: "Home",
+  nav_preview_parent: "Parent view",
+  nav_preview_gate: "School gate screen",
+  nav_install: "Install app",
+  nav_more: "More",
+  nav_close: "Close",
+  nav_main: "Main menu",
+  nav_back_to: "Back to {page}",
+  skip_to_content: "Skip to content",
+
+  lang_th: "ไทย",
+  lang_en: "English",
+  lang_switch: "Change language",
+
+  common_loading: "Working",
+  common_cancel: "Cancel",
+  common_sample_notice: "Sample screen with made-up data. Not the live system yet.",
+
+  home_badge: "Calm and safe",
+  home_title: "Parents are on the way. Teachers are ready in time.",
+  home_lead:
+    "KidGuard shows the school who is arriving next, and lets parents know their child is ready, without waiting at the gate.",
+  home_status_title: "Under development",
+  home_status_body: "You can preview the screens for now. Sign-up and sign-in will open in the next step.",
+  home_step1_title: "Parent taps “on my way”",
+  home_step1_body: "Once within the school's distance, one tap shares only the distance and estimated time.",
+  home_step2_title: "The school sees a live queue",
+  home_step2_body: "Teachers and gate staff see who arrives first. The order updates instantly, no refresh needed.",
+  home_step3_title: "Picked up. Either side can close it",
+  home_step3_body: "The parent or the teacher can tap first. The other side is notified right away.",
+  home_privacy_title: "Only what is necessary",
+  home_privacy_body:
+    "We do not store your route and nobody else sees your location. The school only sees distance and estimated arrival time.",
+  home_cta_parent: "Preview the parent view",
+  home_cta_gate: "Preview the school gate screen",
+
+  install_button: "Install as an app",
+  install_installed: "Installed",
+  install_ios_title: "Install on iPhone / iPad",
+  install_ios_step1: "Tap the Share button in Safari",
+  install_ios_step2: "Choose “Add to Home Screen”",
+  install_ios_step3: "Tap “Add”, then open the app from your Home Screen",
+  install_generic_title: "Install on this device",
+  install_generic_body:
+    "Open your browser menu and choose “Install app” or “Add to Home screen”. If you do not see it, try Chrome or Safari.",
+  install_note_gps: "Note: keep the KidGuard screen open while driving so the school can see your arrival time continuously.",
+
+  preview_parent_title: "On the way to pick up",
+  preview_parent_eta_label: "Arriving in",
+  preview_parent_eta_value: "about {min} min",
+  preview_parent_distance: "{km} km to go",
+  preview_parent_students: "Picking up",
+  preview_parent_driver: "Driver",
+  preview_parent_vehicle: "Vehicle",
+  preview_parent_map_label: "Map (sample), visible only to you",
+  preview_parent_privacy: "The school sees only distance and time, never your route.",
+  preview_parent_pickup_done: "Student picked up",
+  preview_parent_pickup_done_toast: "Saved (sample). The teacher will be notified right away.",
+  preview_parent_cancel: "Cancel trip",
+
+  preview_gate_title: "Pickup queue",
+  preview_gate_subtitle: "Sorted by who arrives soonest. The order updates live.",
+  preview_gate_col_order: "Order",
+  preview_gate_col_parent: "Parent / licence plate",
+  preview_gate_col_student: "Student",
+  preview_gate_col_eta: "Arrives",
+  preview_gate_col_distance: "Distance",
+  preview_gate_col_action: "Action",
+  preview_gate_status_arrived: "At the gate",
+  preview_gate_status_on_the_way: "On the way",
+  preview_gate_status_called: "Student called",
+  preview_gate_call: "Call student",
+  preview_gate_release: "Student released",
+  preview_gate_minutes: "{min} min",
+  preview_gate_now: "Arrived",
+  preview_gate_meters: "{m} m",
+  preview_gate_km: "{km} km",
+  preview_gate_updated: "Updated just now",
+
+  offline_title: "You are offline",
+  offline_body: "No internet connection. Try again when the signal returns. Your data is not stored on this device.",
+  offline_retry: "Try again",
+
+  not_found_title: "Page not found",
+  not_found_body: "The page may have moved or never existed.",
+  not_found_home: "Back to home",
+  error_title: "Something went wrong",
+  error_body: "The system could not complete that. Please try again.",
+  error_retry: "Try again",
+
+  err_generic: "That did not work. Please try again.",
+  err_network: "Cannot connect. Check your internet and try again.",
+  err_rate_limited: "Too many attempts. Please wait a moment.",
+} satisfies Dict;
+
+export type Lang = "th" | "en";
+export const LANGS: readonly Lang[] = ["th", "en"] as const;
+export const DEFAULT_LANG: Lang = "th";
+export const DICTS: Record<Lang, Dict> = { th, en };
+export type DictKey = keyof typeof th;
+
+export function isLang(v: unknown): v is Lang {
+  return v === "th" || v === "en";
+}
+
+/** แทนที่ {name} ด้วยค่า; placeholder ที่ไม่มีค่าคงไว้เหมือนเดิม */
+export function fmt(text: string, vars?: Record<string, string | number>): string {
+  if (!vars) return text;
+  return text.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? String(vars[k]) : m));
+}

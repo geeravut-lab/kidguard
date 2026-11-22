@@ -1,0 +1,117 @@
+@import "tailwindcss";
+@import "@fontsource-variable/noto-sans-thai";
+
+/* ===== Design tokens (ค่า hex อยู่ที่นี่ที่เดียว — ดู docs/KIDGUARD-PLAN.md §7) ===== */
+:root {
+  --kg-primary: #0b6e8a; /* Guard Teal-Blue */
+  --kg-primary-strong: #0b5c8a;
+  --kg-primary-soft: #27b3c4;
+  --kg-primary-fg: #ffffff;
+  --kg-bg: #f5fafb;
+  --kg-surface: #ffffff;
+  --kg-surface-2: #eaf4f7;
+  --kg-ink: #12303b;
+  --kg-ink-soft: #4a6572;
+  --kg-line: #d5e5ea;
+  --kg-success: #1f7a52;
+  --kg-success-bg: #e3f5ec;
+  --kg-warn: #8a5a00;
+  --kg-warn-bg: #fff2d6;
+  --kg-danger: #b42d2d;
+  --kg-danger-bg: #fde8e8;
+  --kg-accent: #ffc247;
+  --kg-accent-fg: #4a3200;
+  --kg-ring: #0b6e8a;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --kg-primary: #4cc3d6;
+    --kg-primary-strong: #7fd6e4;
+    --kg-primary-soft: #27b3c4;
+    --kg-primary-fg: #06242c;
+    --kg-bg: #0c1a20;
+    --kg-surface: #12272f;
+    --kg-surface-2: #183440;
+    --kg-ink: #e6f3f6;
+    --kg-ink-soft: #9cb7c1;
+    --kg-line: #25424d;
+    --kg-success: #5fd4a0;
+    --kg-success-bg: #11382a;
+    --kg-warn: #ffd37a;
+    --kg-warn-bg: #3b2d0b;
+    --kg-danger: #ff9a9a;
+    --kg-danger-bg: #3d1717;
+    --kg-accent: #ffc247;
+    --kg-accent-fg: #2b1d00;
+    --kg-ring: #7fd6e4;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --kg-primary: #4cc3d6;
+  --kg-primary-strong: #7fd6e4;
+  --kg-primary-soft: #27b3c4;
+  --kg-primary-fg: #06242c;
+  --kg-bg: #0c1a20;
+  --kg-surface: #12272f;
+  --kg-surface-2: #183440;
+  --kg-ink: #e6f3f6;
+  --kg-ink-soft: #9cb7c1;
+  --kg-line: #25424d;
+  --kg-success: #5fd4a0;
+  --kg-success-bg: #11382a;
+  --kg-warn: #ffd37a;
+  --kg-warn-bg: #3b2d0b;
+  --kg-danger: #ff9a9a;
+  --kg-danger-bg: #3d1717;
+  --kg-ring: #7fd6e4;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-primary: var(--kg-primary);
+  --color-primary-strong: var(--kg-primary-strong);
+  --color-primary-soft: var(--kg-primary-soft);
+  --color-primary-fg: var(--kg-primary-fg);
+  --color-bg: var(--kg-bg);
+  --color-surface: var(--kg-surface);
+  --color-surface-2: var(--kg-surface-2);
+  --color-ink: var(--kg-ink);
+  --color-ink-soft: var(--kg-ink-soft);
+  --color-line: var(--kg-line);
+  --color-success: var(--kg-success);
+  --color-success-bg: var(--kg-success-bg);
+  --color-warn: var(--kg-warn);
+  --color-warn-bg: var(--kg-warn-bg);
+  --color-danger: var(--kg-danger);
+  --color-danger-bg: var(--kg-danger-bg);
+  --color-accent: var(--kg-accent);
+  --color-accent-fg: var(--kg-accent-fg);
+  --color-ring: var(--kg-ring);
+  --font-sans: var(--font-geist-sans), "Noto Sans Thai Variable", ui-sans-serif, system-ui, sans-serif;
+  --radius-card: 1rem;
+}
+
+html {
+  background: var(--kg-bg);
+  color: var(--kg-ink);
+  font-family: var(--font-sans);
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  min-height: 100dvh;
+  line-height: 1.6;
+  background: var(--kg-bg);
+  color: var(--kg-ink);
+}
+/* ภาษาไทยต้องการ line-height สูงกว่า utility ของ Tailwind */
+.text-xs, .text-sm { line-height: 1.5; }
+:focus-visible { outline: 3px solid var(--kg-ring); outline-offset: 2px; border-radius: 0.5rem; }
+input, select, textarea { font-size: 1rem; } /* กัน iOS ซูมเมื่อโฟกัส */
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
