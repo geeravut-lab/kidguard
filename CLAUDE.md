@@ -4,10 +4,10 @@
 แผนทั้งหมด: `docs/KIDGUARD-PLAN.md` · สารบัญ knowledge: `docs/Knowledge-Index.md`
 
 ## สถานะ
-แผนอยู่ในขั้น **รอเจ้าของโครงการอนุมัติ** ห้ามเริ่มเขียนโค้ดของเฟสใดจนกว่าเจ้าของสั่งชัดเจน
+แผน **อนุมัติแล้ว** (คำตัดสินใน `docs/KIDGUARD-PLAN.md` §16) · กำลังทำเฟส 0 · จบแต่ละเฟสต้องหยุดรอคำสั่งเฟสถัดไป
 
 ## ข้อมูลระบบ
-- Production: https://kidguards.vercel.app/ (ยืนยันชื่อโดเมนตาม `docs/KIDGUARD-PLAN.md` §14 ข้อ 1)
+- Production: https://kidguards.vercel.app/ (ยึดชื่อนี้ — มี s; ไม่ใช่ `kidguard.vercel.app` ในตัวอย่างของ SSO doc)
 - GitHub: https://github.com/geeravut-lab/kidguard
 - Supabase: https://ileermgqcuuduoglhfbf.supabase.co (Auth + Database + Storage + Realtime)
 - Vercel: deploy **เฉพาะ production** — ห้ามมี Preview deployment
@@ -18,7 +18,7 @@
 2. **ทดสอบเองให้มากที่สุด** บน Supabase ของ KidGuard (ได้รับอนุญาตแล้ว) — ข้อมูลทดสอบใช้คำนำหน้า `zz_test_` / อีเมล `@kidguard.test` และลบในรันเดียวกัน; รายงานทุกครั้งว่าอะไร "ทดสอบเองไม่ได้ ต้องให้คนทดสอบ" (เช่น Aivora SSO จริง, LINE จริง, GPS จริง)
 3. **ทุกปุ่ม/เมนูที่กดแล้วต้องรอ ต้องแสดง Loading Spinner/Throbber และกดซ้ำไม่ได้ จนกว่างานจะเสร็จ** — ใช้คอมโพเนนต์กลาง (`AsyncButton` ฯลฯ) ห้ามใช้ `<button onClick>` ดิบ
 4. ความลับ (service_role, token, channel secret) **ห้ามเขียนลงไฟล์/git/แชต**; `SUPABASE_SERVICE_ROLE_KEY` ห้ามมีคำนำหน้า `NEXT_PUBLIC_`/`VITE_`/`PUBLIC_` และใช้ฝั่ง server เท่านั้น; ตรวจ `grep` build output ก่อนปล่อย
-5. พัฒนาบน branch ที่ session กำหนด; **ไม่สร้าง PR และไม่ push เข้า `main`** จนกว่าเจ้าของอนุญาต
+5. พัฒนาบน branch `claude/nice-ptolemy-rcullj`; เจ้าของอนุญาตให้ merge/push เข้า `main` **เมื่อจบแต่ละเฟสและผ่านเทสต์แล้วเท่านั้น** (production deploy มาจาก `main`); ไม่สร้าง PR เว้นแต่เจ้าของสั่ง
 6. Migration ทุกอันต้องรันซ้ำได้ (idempotent), อ่านทบทวนก่อนรัน, และโค้ดต้องทนช่วงที่คอลัมน์ยังไม่มี
 7. **Audit Trail:** Admin เปิด/ปิดการเก็บได้ และติ๊กเลือกชนิด event ที่จะเก็บได้ (การเปลี่ยนสวิตช์/ส่งออก/ลบ audit บันทึกเสมอ)
 8. ข้อมูลเด็กและตำแหน่ง: เก็บเท่าที่จำเป็น ไม่เก็บเส้นทาง/พิกัดดิบ ไม่แสดงเส้นทางให้ผู้อื่นนอกจากผู้ปกครองเจ้าของ session

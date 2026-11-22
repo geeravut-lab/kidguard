@@ -1,6 +1,6 @@
 # KidGuard — แผนสร้างระบบทั้งหมด (รออนุมัติก่อนเริ่มเขียนโค้ด)
 
-> สถานะ: **ฉบับร่างรออนุมัติ** · ยังไม่มีโค้ดใด ๆ ถูกเขียน
+> สถานะ: **อนุมัติแล้ว (เจ้าของตอบคำถาม §14 ครบ — ดู §16)** · เริ่มเฟส 0
 > Production URL: https://kidguards.vercel.app/ (ยืนยันชื่อโดเมนใน §14 ข้อ 1)
 > โรงเรียนแรก: โรงเรียนกรุงเทพคริสเตียน · ออกแบบเป็น multi-tenant สำหรับโรงเรียนอื่นในอนาคต
 > Stack: Next.js 16 (App Router, TypeScript) + Tailwind v4 + shadcn/ui · Supabase (Auth + Postgres/RLS + Realtime + Storage) · Vercel (production เท่านั้น)
@@ -467,3 +467,21 @@ Aivora SSO จริง (ตั๋ว 60 วินาที), เบราว์
 - รถรับส่ง/ไทย-ตะวันออกกลาง: [MySchoolRide (TH)](https://apps.apple.com/th/app/myschoolride/id1633988042?l=th) · [โครงงาน Safe Track Bus โรงเรียนพีระยานาวินคลองหินวิทยา](https://princess-it.org/wp-content/uploads/2024/12/peelaya4-2.pdf) · [UAE school transport](https://itc.gov.ae/en/school-transport)
 - PDPA ไทย (ความยินยอมของผู้เยาว์): [Tilleke & Gibbins](https://www.tilleke.com/insights/thailand-issues-guidelines-on-pdpa-consent-and-notification-requirements) · [PwC Thailand data protection overview](https://legal.pwc.de/content/im-fokus/thailand-global-data-protection-law-overview.pdf) · [Securiti](https://securiti.ai/pt-br/blog/consent-requirements-under-thailands-data-protection-framework) · [Chambers 2026](https://practiceguides.chambers.com/practice-guides/data-protection-privacy-2026/thailand) — แหล่งเหล่านี้ขัดกันเล็กน้อยเรื่องผู้เยาว์อายุ 10–19 ปี จึงควรให้ผู้เชี่ยวชาญกฎหมายยืนยัน
 - Knowledge ภายใน: ไฟล์ทั้งหมดใน `docs/` (ดู §8)
+
+---
+
+## 16. บันทึกคำตัดสินใจของเจ้าของโครงการ (อนุมัติแผน)
+
+| # | หัวข้อ | คำตัดสิน | ผลต่อการออกแบบ |
+| --- | --- | --- | --- |
+| 1 | โดเมน | ยึด `kidguards.vercel.app` | `HUB_URL`/callback SSO/Redirect URL ของ Supabase ใช้โดเมนนี้ (ไม่ตามค่าในตัวอย่างของ `SSO-Aivora-Supabase.md`); ชื่อ Vercel project ต้องให้ได้โดเมนนี้ |
+| 2 | ETA | **Google Routes API** | `EtaProvider` เริ่มด้วย Google Routes (traffic-aware) + fallback haversine; เพดานการเรียก/วัน + ตั้งงบเตือนที่ Google Cloud |
+| 3 | Deploy | อนุญาตให้ merge/push เข้า `main` เมื่อจบแต่ละเฟสและผ่านเทสต์ | production มาจาก `main` เท่านั้น; ทำงานบน branch `claude/nice-ptolemy-rcullj` แล้ว fast-forward เข้า `main` เมื่อเฟสผ่าน (ไม่สร้าง PR เว้นแต่สั่ง) |
+| 4 | LINE OA | **แยก OA ต่อโรงเรียนตั้งแต่ต้น** · มี OA/Provider อยู่แล้ว | ตาราง `school_line_channels` (secret/token เข้ารหัสฝั่ง server ด้วยคีย์ใน env, ไม่ส่งออก client), webhook ต่อโรงเรียน `/api/line/webhook/<school-slug>`, ตัวส่ง/คิว/โควตาแยกต่อโรงเรียน; `notification_channels` ผูกกับ `school_id` — ผู้ปกครองที่มีลูกหลายโรงเรียนผูกได้หลาย OA |
+| 5 | บัญชีนักเรียน | optional ปิดไว้ก่อน (feature flag) · เริ่มตั้งแต่ **อนุบาล–มัธยม** | รองรับระดับชั้นอนุบาล (อ.1–อ.3) ถึง ม.1–ม.6 ในโครงห้องเรียน; นักเรียนเล็กมากใช้ "จอประตู + เสียงเรียก" เป็นหลัก; บัญชีนักเรียนเฉพาะที่โรงเรียนเปิดใช้ |
+| 6 | อนุมัติผูกนักเรียน | ต้องอนุมัติ · **Admin หรือครูประจำชั้น** อนุมัติได้ | ทั้งสองบทบาทมีปุ่มอนุมัติ (ครูเห็นเฉพาะห้องตัวเอง); บันทึก audit ว่าใครอนุมัติ |
+| 7 | Audit | การเปลี่ยนสวิตช์/ส่งออก/ลบ บันทึกเสมอ ปิดไม่ได้ | ตามที่ร่างใน §9.3 |
+| 8 | AI | ไม่ทำใน 8 เฟสนี้ | ไม่สร้างโครง AI |
+| 9 | เฟส 6 | ทำทุกรายการ | ครบทั้ง 8 รายการ |
+| 10 | ภาษา | ไทย + อังกฤษ | ตามแผน |
+| 11 | "ASCS" | ชื่อย่อของโรงเรียน | ใช้เป็น `short_name` ของโรงเรียน (เช่น แสดงบนจอประตู/หัวเรื่องการ์ด) ไม่ใช่ระบบภายนอกที่ต้องเชื่อม |
