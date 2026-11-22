@@ -1,7 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "regions": ["icn1"],
-  "git": { "deploymentEnabled": { "main": true } },
+  "regions": [
+    "icn1"
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "claude/*": false
+    }
+  },
   "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" != \"main\" ]"
 }
