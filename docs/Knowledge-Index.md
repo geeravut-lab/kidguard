@@ -38,6 +38,14 @@
 | ผูกบัญชี LINE ของผู้ใช้เพื่อรับแจ้งเตือน (รหัสครั้งเดียว, webhook, สถานะ) | [LINE-ACCOUNT-LINKING-KNOWLEDGE.md](./LINE-ACCOUNT-LINKING-KNOWLEDGE.md) |
 | สองภาษาและการสลับภาษา                                    | [I18N-KNOWLEDGE.md](./I18N-KNOWLEDGE.md)                                   |
 
+## เอกสารเฉพาะของโครงการ KidGuard
+
+| เรื่อง                                                         | ไฟล์                                                              |
+| -------------------------------------------------------------- | ----------------------------------------------------------------- |
+| แผนสร้างระบบทั้งหมดทุกเฟส (รออนุมัติ) + ฟีเจอร์เสริม + UX/UI    | [KIDGUARD-PLAN.md](./KIDGUARD-PLAN.md)                            |
+| ร่างโลโก้และ favicon                                           | [design/](./design/)                                              |
+| SSO Aivora (LINE) กับ Supabase                                 | [SSO-Aivora-Supabase.md](./SSO-Aivora-Supabase.md)                |
+
 ## บริบทของ stack ที่โค้ดตัวอย่างอ้างถึง
 
 ทุกไฟล์ยกตัวอย่างจากโค้ดจริงของโครงการนี้ ซึ่งใช้:

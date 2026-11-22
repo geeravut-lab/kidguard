@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="KidGuard">
+  <defs>
+    <linearGradient id="shield" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#27B3C4"/>
+      <stop offset="1" stop-color="#0B5C8A"/>
+    </linearGradient>
+    <linearGradient id="pin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E3F4F7"/>
+    </linearGradient>
+  </defs>
+  <path d="M256 36c72 40 140 52 192 54v160c0 112-78 190-192 232C142 440 64 362 64 250V90c52-2 120-14 192-54z" fill="url(#shield)"/>
+  <path d="M256 140a76 76 0 0 1 76 76c0 56-76 144-76 144s-76-88-76-144a76 76 0 0 1 76-76z" fill="url(#pin)"/>
+  <circle cx="256" cy="205" r="25" fill="#0B5C8A"/>
+  <path d="M216 270c0-26 18-42 40-42s40 16 40 42z" fill="#0B5C8A"/>
+  <circle cx="344" cy="132" r="15" fill="#FFC247"/>
+</svg>
