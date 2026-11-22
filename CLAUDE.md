@@ -4,7 +4,7 @@
 แผนทั้งหมด: `docs/KIDGUARD-PLAN.md` · สารบัญ knowledge: `docs/Knowledge-Index.md`
 
 ## สถานะ
-แผน **อนุมัติแล้ว** (คำตัดสินใน `docs/KIDGUARD-PLAN.md` §16) · **เฟส 0 เสร็จและ deploy แล้ว** · รอคำสั่งเริ่มเฟส 1 · จบแต่ละเฟสต้องหยุดรอคำสั่งเฟสถัดไป
+แผน **อนุมัติแล้ว** (คำตัดสินใน `docs/KIDGUARD-PLAN.md` §16) · **เฟส 0–2 เสร็จ** (บัญชีผู้ใช้/สิทธิ์/Audit แกน/โรงเรียน/ลงทะเบียนผู้ปกครอง/อนุมัติ) · รอคำสั่งเริ่มเฟส 3 · จบแต่ละเฟสต้องหยุดรอคำสั่งเฟสถัดไป
 
 ## ข้อมูลระบบ
 - Production: https://kidguards.vercel.app/ (ยึดชื่อนี้ — มี s; ไม่ใช่ `kidguard.vercel.app` ในตัวอย่างของ SSO doc)
@@ -32,4 +32,7 @@
 - Node ต้องตั้ง `NODE_USE_ENV_PROXY=1` ถึงจะใช้ proxy ของ session (สคริปต์ migrate, build, next start)
 - ตรวจก่อน merge: `pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm test:e2e` (e2e ใช้ `next start` พอร์ต 3100); หลัง deploy: `E2E_BASE_URL=https://kidguards.vercel.app pnpm test:e2e`
 - Vercel project `kidguard` (team geeravut-lab): production จาก `main`; `vercel.json` ปิด deployment ของ `claude/*` และมี `ignoreCommand` กัน branch อื่นซ้ำอีกชั้น; env vars ตั้งเฉพาะ target production
+- เทสต์ฐานข้อมูล/e2e ต้องมีคีย์ใน env: `source` สคริปต์ที่ดึงคีย์จาก Management API (ดูหัวข้อบน) แล้วรัน `pnpm test` (รวม tests/db) และ `pnpm test:e2e`; ข้อมูลทดสอบ `zz_test_` ถูกลบเองใน afterAll (รวมแถว audit ของข้อมูลทดสอบ)
+- ความหน่วง sandbox→Supabase ~0.4–0.6 วินาทีต่อการเรียก: เทสต์ e2e ที่มีหลายขั้นจึงตั้ง timeout สูง (production ไม่ช้าเท่านี้ เพราะ functions อยู่ `icn1`)
+- สร้างลิงก์เชิญครั้งแรก: `node scripts/create-invite.mjs --role super_admin` (ต้องมี env คีย์)
 - Supabase region ap-northeast-2 (โซล); Vercel functions ตั้ง `icn1` ให้ใกล้ฐานข้อมูล

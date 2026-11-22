@@ -1,0 +1,67 @@
+import { redirect } from "next/navigation";
+import { CarFront, Clock3, GraduationCap } from "lucide-react";
+import { ChildrenSection, StatusChip } from "@/components/parent/sections";
+import { requireMe } from "@/lib/auth/guards";
+import { getAuthInfo, postLoginPath } from "@/lib/auth/me";
+import { getT } from "@/lib/i18n/server";
+import { loadParentData } from "@/lib/parent-data";
+import { createClient } from "@/lib/supabase/server";
+
+export const metadata = { title: "บุตรหลานของฉัน", robots: { index: false } };
+
+export default async function ParentHomePage() {
+  const me = await requireMe("/home");
+  if (me.role !== "parent") redirect(postLoginPath(me));
+  if (!me.onboarded) redirect("/onboarding");
+  const { lang, t } = await getT();
+  const supabase = await createClient();
+  const info = await getAuthInfo();
+  const data = await loadParentData(supabase, info!.id, lang);
+  const approved = data.claims.filter((c) => c.status === "approved");
+  const others = data.claims.filter((c) => c.status !== "approved");
+
+  const { data: settings } = await supabase.from("schools").select("id, lat, lng").in("id", [...new Set(data.claims.map((c) => c.school_id))]);
+  const notReady = (settings ?? []).some((s) => s.lat == null);
+
+  return (
+    <div className="mx-auto max-w-2xl space-y-5">
+      <h1 className="text-2xl font-bold">{t.home_parent_title}</h1>
+
+      <section className="space-y-3 rounded-2xl bg-primary p-5 text-primary-fg">
+        <p className="flex items-center gap-2 text-lg font-semibold">
+          <CarFront className="size-6" aria-hidden="true" /> {t.home_pickup_soon}
+        </p>
+        {notReady && (
+          <p className="flex items-center gap-2 text-sm opacity-90">
+            <Clock3 className="size-4" aria-hidden="true" /> {t.home_school_not_ready}
+          </p>
+        )}
+      </section>
+
+      {approved.length === 0 && others.length === 0 && <p className="text-ink-soft">{t.home_parent_empty}</p>}
+
+      <ul className="space-y-3">
+        {approved.map((c) => {
+          const teachers = data.classrooms[c.school_id]?.find((r) => r.id === c.classroom_id)?.teachers ?? [];
+          return (
+            <li key={c.id} className="rounded-2xl border border-line bg-surface p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-lg font-semibold">{c.student_label ?? c.claimed_name}</p>
+                  <p className="text-ink-soft">{c.classroom_name}</p>
+                </div>
+                <StatusChip status="approved" />
+              </div>
+              <p className="mt-2 flex items-center gap-2 text-sm">
+                <GraduationCap className="size-4 text-primary" aria-hidden="true" />
+                <span className="text-ink-soft">{t.home_homeroom}:</span> {teachers.length ? teachers.join(", ") : t.teacher_step_none}
+              </p>
+            </li>
+          );
+        })}
+      </ul>
+
+      <ChildrenSection claims={others} schools={data.schools} classrooms={data.classrooms} />
+    </div>
+  );
+}

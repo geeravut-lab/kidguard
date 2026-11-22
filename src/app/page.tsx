@@ -2,10 +2,12 @@ import { Lock, MapPinned, ShieldCheck, UsersRound } from "lucide-react";
 import { AsyncLink } from "@/components/ui";
 import { buttonVariants } from "@/components/ui/button";
 import { InstallApp } from "@/components/shell/install-app";
+import { getMe } from "@/lib/auth/me";
 import { getT } from "@/lib/i18n/server";
 
 export default async function HomePage() {
   const { t } = await getT();
+  const me = await getMe();
   const steps = [
     { icon: MapPinned, title: t.home_step1_title, body: t.home_step1_body },
     { icon: UsersRound, title: t.home_step2_title, body: t.home_step2_body },
@@ -20,10 +22,26 @@ export default async function HomePage() {
         <h1 className="text-3xl font-bold leading-snug md:text-4xl">{t.home_title}</h1>
         <p className="mt-3 text-lg text-ink-soft">{t.home_lead}</p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <AsyncLink href="/preview/parent" className={buttonVariants({ variant: "primary", size: "lg" })}>
+          {me ? (
+            <AsyncLink href="/start" className={buttonVariants({ variant: "primary", size: "lg" })}>
+              {t.home_cta_continue}
+            </AsyncLink>
+          ) : (
+            <>
+              <AsyncLink href="/signup" className={buttonVariants({ variant: "primary", size: "lg" })}>
+                {t.home_cta_signup}
+              </AsyncLink>
+              <AsyncLink href="/login" className={buttonVariants({ variant: "secondary", size: "lg" })}>
+                {t.home_cta_login}
+              </AsyncLink>
+            </>
+          )}
+        </div>
+        <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+          <AsyncLink href="/preview/parent" className={buttonVariants({ variant: "ghost", size: "md" })}>
             {t.home_cta_parent}
           </AsyncLink>
-          <AsyncLink href="/preview/gate" className={buttonVariants({ variant: "secondary", size: "lg" })}>
+          <AsyncLink href="/preview/gate" className={buttonVariants({ variant: "ghost", size: "md" })}>
             {t.home_cta_gate}
           </AsyncLink>
         </div>

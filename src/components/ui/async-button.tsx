@@ -32,8 +32,10 @@ export function AsyncButton({ onClick, ...props }: Props) {
 }
 
 /** ปุ่ม submit ของ <AsyncForm>/server action: สปินเนอร์ขณะ form pending */
-export function SubmitButton(props: Omit<ButtonProps, "type" | "busy" | "onClick">) {
+export function SubmitButton({ disabled, ...props }: Omit<ButtonProps, "type" | "busy" | "onClick">) {
   const { t } = useI18n();
-  const { pending } = useFormStatus();
-  return <Button {...props} type="submit" busy={pending} busyLabel={t.common_loading} />;
+  const { pending, data } = useFormStatus();
+  // ฟอร์มที่มีหลายปุ่ม (name/value): หมุนเฉพาะปุ่มที่ถูกกด, ปุ่มอื่นถูกปิดไม่ให้กดซ้อน
+  const mine = props.name && props.value !== undefined ? data?.get(props.name) === String(props.value) : true;
+  return <Button {...props} type="submit" busy={pending && mine} disabled={disabled || (pending && !mine)} busyLabel={t.common_loading} />;
 }

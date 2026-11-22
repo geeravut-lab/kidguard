@@ -1,15 +1,19 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { House, Smartphone, ListOrdered, Ellipsis, X } from "lucide-react";
+import { Building2, ClipboardCheck, Ellipsis, GraduationCap, House, ListOrdered, School, Settings, Smartphone, UserRound, Users, UsersRound, X } from "lucide-react";
 import { AsyncButton, AsyncLink } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import type { NavIcon } from "@/config/nav";
 
 export type NavEntry = { href: string; label: string; icon: NavIcon };
 
-const ICONS = { home: House, parent: Smartphone, gate: ListOrdered } as const;
+const ICONS = {
+  home: House, parent: Smartphone, gate: ListOrdered, children: UsersRound, account: UserRound, teacher: GraduationCap,
+  classroom: School, students: Users, staff: UsersRound, settings: Settings, approvals: ClipboardCheck, platform: Building2,
+} as const;
+const MAX_BAR = 4;
 
 function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/");
@@ -57,6 +61,10 @@ export function BottomBar({
   sheet: ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const primary = items.slice(0, MAX_BAR);
+  const rest = items.slice(MAX_BAR);
+  const pendingHref = useRef<string | null>(null);
   // แผ่นเปิดอยู่เฉพาะ "หน้าที่กดเปิด" — เปลี่ยนหน้าแล้วปิดเอง โดยไม่ต้อง setState ใน effect
   const [openAt, setOpenAt] = useState<string | null>(null);
   const open = openAt === pathname;
@@ -70,10 +78,17 @@ export function BottomBar({
     const onPop = () => {
       reserved.current = false;
       setOpenAt(null);
+      const href = pendingHref.current;
+      if (href) {
+        pendingHref.current = null;
+        // ถอยรายการของแผ่นก่อน แล้วค่อยไปหน้าใหม่ → กด Back ครั้งเดียวกลับหน้าเดิม
+        // (หน่วงหนึ่งจังหวะ: router ของ Next จัดการ popstate เองด้วย ถ้า push ทันทีจะถูกทับ)
+        setTimeout(() => router.push(href), 0);
+      }
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (!open) return;
@@ -103,7 +118,7 @@ export function BottomBar({
         className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
       >
         <ul className="mx-auto flex max-w-xl items-stretch justify-around">
-          {items.map((it) => {
+          {primary.map((it) => {
             const Icon = ICONS[it.icon];
             const active = isActive(pathname, it.href);
             return (
@@ -147,6 +162,32 @@ export function BottomBar({
                 <span className="sr-only">{closeLabel}</span>
               </AsyncButton>
             </div>
+            {rest.length > 0 && (
+              <nav aria-label={navLabel} className="mb-5 flex flex-col gap-1">
+                {rest.map((it) => {
+                  const Icon = ICONS[it.icon];
+                  const active = isActive(pathname, it.href);
+                  return (
+                    <AsyncLink
+                      key={it.href}
+                      href={it.href}
+                      aria-current={active ? "page" : undefined}
+                      onClick={(e) => {
+                        if (!reserved.current) return;
+                        e.preventDefault();
+                        pendingHref.current = it.href;
+                        window.dispatchEvent(new Event("kg:nav-start"));
+                        history.back();
+                      }}
+                      className={cn("flex min-h-12 items-center gap-3 rounded-xl px-4 text-base font-medium", active ? "bg-primary text-primary-fg" : "text-ink hover:bg-surface-2")}
+                    >
+                      <Icon className="size-5 shrink-0" aria-hidden="true" />
+                      <span>{it.label}</span>
+                    </AsyncLink>
+                  );
+                })}
+              </nav>
+            )}
             {sheet}
           </div>
         </div>

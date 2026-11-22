@@ -1,14 +1,17 @@
 import type { ReactNode } from "react";
 import { LogoMark } from "@/components/logo";
-import { VISITOR_NAV } from "@/config/nav";
+import { navFor } from "@/config/nav";
+import { getMe } from "@/lib/auth/me";
+import { UserCard } from "./user-card";
 import type { Dict, Lang } from "@/lib/i18n/dict";
 import { DEFAULT_BRAND } from "@/lib/brand/brand";
 import { InstallApp } from "./install-app";
 import { LangSwitch } from "./lang-switch";
 import { BottomBar, SidebarNav, type NavEntry } from "./nav-links";
 
-export function AppShell({ lang, t, children }: { lang: Lang; t: Dict; children: ReactNode }) {
-  const items: NavEntry[] = VISITOR_NAV.map((i) => ({ href: i.href, label: t[i.labelKey], icon: i.icon }));
+export async function AppShell({ lang, t, children }: { lang: Lang; t: Dict; children: ReactNode }) {
+  const me = await getMe();
+  const items: NavEntry[] = navFor(me).map((i) => ({ href: i.href, label: t[i.labelKey], icon: i.icon }));
   const name = lang === "th" ? DEFAULT_BRAND.name_th : DEFAULT_BRAND.name_en;
 
   const brandBlock = (
@@ -37,6 +40,7 @@ export function AppShell({ lang, t, children }: { lang: Lang; t: Dict; children:
           <SidebarNav items={items} label={t.nav_main} />
         </div>
         <div className="flex flex-col gap-4">
+          <UserCard me={me} t={t} />
           <InstallApp />
           <LangSwitch lang={lang} t={t} />
         </div>
@@ -59,6 +63,7 @@ export function AppShell({ lang, t, children }: { lang: Lang; t: Dict; children:
         navLabel={t.nav_main}
         sheet={
           <div className="flex flex-col gap-5">
+            <UserCard me={me} t={t} />
             <InstallApp />
             <LangSwitch lang={lang} t={t} />
           </div>

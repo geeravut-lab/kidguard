@@ -37,9 +37,11 @@ export function NavigationFeedback() {
       start();
     }
     window.addEventListener("popstate", start);
+    window.addEventListener("kg:nav-start", start);
     document.addEventListener("click", onClick, true);
     return () => {
       window.removeEventListener("popstate", start);
+      window.removeEventListener("kg:nav-start", start);
       document.removeEventListener("click", onClick, true);
       if (failsafe.current) clearTimeout(failsafe.current);
     };
