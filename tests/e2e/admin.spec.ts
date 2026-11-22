@@ -133,10 +133,13 @@ test.describe("แบรนด์", () => {
     await file.setInputFiles({ name: "logo.png", mimeType: "image/png", buffer: ICON });
     await page.getByRole("button", { name: "อัปโหลด" }).first().click();
     await expect(ok(page)).toBeVisible({ timeout: 30_000 });
-    const res = await page.request.get(`/brand/school/${w.school}`);
+    // URL ที่หน้าเว็บใช้มี ?v=<เวลาที่อัปโหลด> เสมอ (CDN จึงไม่ค้างรูปเก่า/ลิงก์ redirect เดิมที่แคชไว้)
+    const ver = ((await svc().from("schools").select("logo").eq("id", w.school).single()).data!.logo as { version: number }).version;
+    const url = `/brand/school/${w.school}?v=${ver}`;
+    const res = await page.request.get(url);
     expect(res.status()).toBe(200);
     expect(res.headers()["content-type"]).toBe("image/png");
-    expect((await page.request.get(`/brand/school/${w.school}`, { headers: { "If-None-Match": res.headers().etag! } })).status()).toBe(304);
+    expect((await page.request.get(url, { headers: { "If-None-Match": res.headers().etag! } })).status()).toBe(304);
     await page.goto("/admin");
     await expect(page.locator(`img[src^="/brand/school/${w.school}"]:visible`).first()).toBeVisible({ timeout: 30_000 });
 
@@ -145,7 +148,7 @@ test.describe("แบรนด์", () => {
     await expect(page.getByRole("button", { name: "กลับไปใช้รูปของระบบ" })).toHaveCount(0, { timeout: 30_000 });
     expect((await svc().from("schools").select("logo").eq("id", w.school).single()).data!.logo).toBeNull();
     // ไม่มีรูปของโรงเรียน → redirect ไปโลโก้แพลตฟอร์ม (ไม่ 404)
-    expect((await page.request.get(`/brand/school/${w.school}`, { maxRedirects: 0 })).status()).toBe(307);
+    expect((await page.request.get(`/brand/school/${w.school}?v=${ver + 1}`, { maxRedirects: 0 })).status()).toBe(307);
     expect((await page.request.get("/brand/school/not-a-uuid")).status()).toBe(404);
   });
 
