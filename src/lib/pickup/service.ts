@@ -1,3 +1,4 @@
+import { trackEvent } from "@/lib/analytics/server";
 import "server-only";
 import { z } from "zod";
 import { audit } from "@/lib/audit/server";
@@ -80,6 +81,7 @@ export async function startPickup(userId: string, input: unknown): Promise<({ ok
     return { ok: false, error: code, data: code === "err_outside_window" ? { start: school.checkin_start, end: school.checkin_end } : undefined };
   }
   const sessionId = data as string;
+  await trackEvent("pickup_started", userId, { schoolId: school.id });
   await audit({ by: userId, role: "parent", action: "pickup.start", entity: "pickup_sessions", entityId: sessionId, schoolId: school.id, detail: { students: p.data.student_ids.length, source: eta.source } });
   await emitPickupEvent({ kind: "started", sessionId, schoolId: school.id, parentUserId: userId });
   const status = eta.straight_m <= 0 ? "arrived" : "on_the_way";

@@ -3,7 +3,7 @@ import { randomInt, randomUUID } from "node:crypto";
 import { decryptSecret, encryptSecret, hmacCode } from "@/lib/crypto";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { linePush, type LineResult } from "./api";
-import { buildLineMessage, buildTextMessage, type Notice } from "./flex";
+import { buildLineMessage, buildTextMessage, type Notice, type Sender } from "./flex";
 
 const SAFE = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // ไม่มี 0/O/1/I (ผู้ใช้อ่านจากหน้าจอแล้วพิมพ์ในแชต)
 export const CODE_TTL_MIN = 30;
@@ -101,7 +101,7 @@ async function log(schoolId: string, userId: string, kind: string, status: "sent
 
 /** ส่งการ์ดถึงผู้ใช้ทาง LINE (ถ้าผูกไว้และโรงเรียนเปิดช่องทาง) — ไม่เคย throw; ข้อความธรรมดาเป็น fallback เมื่อการ์ดโดน 400 */
 export async function pushNoticeToUser(
-  userId: string, schoolId: string, notice: Notice, o: { appUrl: string; defaultCta: string; retryKey?: string; fetchImpl?: typeof fetch },
+  userId: string, schoolId: string, notice: Notice, o: { appUrl: string; defaultCta: string; retryKey?: string; fetchImpl?: typeof fetch; sender?: Sender },
 ): Promise<PushOutcome> {
   try {
     const a = supabaseAdmin();

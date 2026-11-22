@@ -2,16 +2,18 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Backpack, Building2, CarFront, ClipboardCheck, Ellipsis, GraduationCap, House, MessageCircleMore, ListOrdered, School, Settings, Smartphone, UserRound, Users, UsersRound, X } from "lucide-react";
+import { Backpack, BarChart3, Building2, Palette, QrCode, DoorOpen, ShieldAlert, Megaphone, Tv, ScrollText, ShieldCheck, TimerReset, ToggleRight, CarFront, ClipboardCheck, Ellipsis, GraduationCap, House, MessageCircleMore, ListOrdered, School, Settings, Smartphone, UserRound, Users, UsersRound, X } from "lucide-react";
 import { AsyncButton, AsyncLink } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import type { NavIcon } from "@/config/nav";
 
-export type NavEntry = { href: string; label: string; icon: NavIcon };
+export type NavEntry = { href: string; label: string; icon: NavIcon; disabled?: boolean };
 
 const ICONS = {
   home: House, parent: Smartphone, gate: ListOrdered, children: UsersRound, account: UserRound, teacher: GraduationCap,
   classroom: School, students: Users, staff: UsersRound, settings: Settings, approvals: ClipboardCheck, platform: Building2, pickup: CarFront, student: Backpack, line: MessageCircleMore,
+  audit: ScrollText, brand: Palette, analytics: BarChart3, flags: ToggleRight, rules: TimerReset, admins: ShieldCheck,
+  passes: QrCode, zones: DoorOpen, custody: ShieldAlert, announce: Megaphone, tv: Tv,
 } as const;
 const MAX_BAR = 4;
 
@@ -26,6 +28,15 @@ export function SidebarNav({ items, label }: { items: NavEntry[]; label: string 
       {items.map((it) => {
         const Icon = ICONS[it.icon];
         const active = isActive(pathname, it.href);
+        // ฟีเจอร์ที่ปิดอยู่: ยังเห็นเมนู (ไม่งงว่าหายไปไหน) แต่เป็นสีเทาและกดไม่ได้จริง
+        if (it.disabled) {
+          return (
+            <span key={it.href} aria-disabled="true" data-disabled="true" className="flex min-h-12 cursor-not-allowed items-center gap-3 rounded-xl px-4 text-base font-medium text-ink-soft opacity-50">
+              <Icon className="size-5 shrink-0" aria-hidden="true" />
+              <span>{it.label}</span>
+            </span>
+          );
+        }
         return (
           <AsyncLink
             key={it.href}
@@ -121,6 +132,16 @@ export function BottomBar({
           {primary.map((it) => {
             const Icon = ICONS[it.icon];
             const active = isActive(pathname, it.href);
+            if (it.disabled) {
+              return (
+                <li key={it.href} className="flex-1">
+                  <span aria-disabled="true" data-disabled="true" className="flex min-h-14 cursor-not-allowed flex-col items-center justify-center gap-0.5 px-1 text-xs font-medium text-ink-soft opacity-50">
+                    <Icon className="size-6" aria-hidden="true" />
+                    <span className="max-w-full truncate">{it.label}</span>
+                  </span>
+                </li>
+              );
+            }
             return (
               <li key={it.href} className="flex-1">
                 <AsyncLink
@@ -167,6 +188,14 @@ export function BottomBar({
                 {rest.map((it) => {
                   const Icon = ICONS[it.icon];
                   const active = isActive(pathname, it.href);
+                  if (it.disabled) {
+                    return (
+                      <span key={it.href} aria-disabled="true" data-disabled="true" className="flex min-h-12 cursor-not-allowed items-center gap-3 rounded-xl px-4 text-base font-medium text-ink-soft opacity-50">
+                        <Icon className="size-5 shrink-0" aria-hidden="true" />
+                        <span>{it.label}</span>
+                      </span>
+                    );
+                  }
                   return (
                     <AsyncLink
                       key={it.href}

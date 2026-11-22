@@ -1,5 +1,6 @@
 "use server";
 
+import { trackEvent } from "@/lib/analytics/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -128,6 +129,8 @@ export async function finishOnboardingAction(_prev: ActionState, fd: FormData): 
   if (data !== true) return fail("err_incomplete");
   await audit({ by: c.info.id, action: "auth.consent", entity: "consents", entityId: c.info.id, detail: { version: PRIVACY_VERSION } });
   await audit({ by: c.info.id, action: "guardian.onboarded", entity: "profiles", entityId: c.info.id });
+  await trackEvent("signup", c.info.id); // ครั้งเดียวต่อคน (unique) — ครอบคลุมคนที่เข้าด้วย Google
+  await trackEvent("onboarded", c.info.id);
   revalidatePath("/", "layout");
   redirect("/home");
 }

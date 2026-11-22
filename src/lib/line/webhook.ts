@@ -1,7 +1,10 @@
+import { trackEvent } from "@/lib/analytics/server";
 import "server-only";
 import { lineReply, verifyLineSignature } from "./api";
 import { bindLine, lineFollowed, lineUnfollowed, loadSchoolLine } from "./service";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { applyBrandNames } from "@/lib/brand/brand";
+import { loadBrand } from "@/lib/brand/server";
 
 const MAX_BODY = 200_000;
 const MAX_EVENTS = 20;
@@ -33,6 +36,7 @@ export async function handleLineWebhook(input: { raw: string; signature: string 
   } catch {
     return { status: 400, body: { error: "bad_json" } };
   }
+  const brand = await loadBrand();
   const reply = (token: string | undefined, text: string) =>
     token ? lineReply(cfg.token, token, [{ type: "text", text }], { fetchImpl: deps.fetchImpl }).catch(() => undefined) : undefined;
 
@@ -58,7 +62,7 @@ export async function handleLineWebhook(input: { raw: string; signature: string 
 
     const m = (msg.text ?? "").trim().toUpperCase().match(CODE_RE);
     if (!m) {
-      await reply(replyToken, `${HELP_TH}\n\n${HELP_EN}`); // ยังไม่รู้ว่าผู้ส่งเป็นใคร จึงต่อกันทุกภาษา
+      await reply(replyToken, `${applyBrandNames(HELP_TH, brand, "th")}\n\n${applyBrandNames(HELP_EN, brand, "en")}`); // ยังไม่รู้ว่าผู้ส่งเป็นใคร จึงต่อกันทุกภาษา
       continue;
     }
     const r = await bindLine(school.id, m[1]!, uid);
@@ -66,6 +70,7 @@ export async function handleLineWebhook(input: { raw: string; signature: string 
       await reply(replyToken, BAD); // ไม่เฉลยสาเหตุ (หมดอายุ/ไม่มี/ใช้แล้ว/ซ้ำ ตอบเหมือนกัน)
       continue;
     }
+    await trackEvent("line_linked", r.ownerId, { schoolId: school.id });
     const { data: p } = await a.from("profiles").select("lang").eq("id", r.ownerId!).maybeSingle();
     await reply(replyToken, OK[p?.lang === "en" ? "en" : "th"]);
   }

@@ -7,23 +7,24 @@ import { PwaRegister } from "@/components/shell/pwa-register";
 import { NavigationFeedback } from "@/components/ui";
 import { I18nProvider } from "@/lib/i18n/client";
 import { getT } from "@/lib/i18n/server";
-import { DEFAULT_BRAND } from "@/lib/brand/brand";
+import { brandImageUrl } from "@/lib/brand/brand";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kidguards.vercel.app";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { lang, t } = await getT();
-  const name = lang === "th" ? DEFAULT_BRAND.name_th : DEFAULT_BRAND.name_en;
+  const { lang, t, brand } = await getT();
+  const name = lang === "th" ? brand.name_th : brand.name_en;
+  const custom = !!brand.favicon;
   return {
     metadataBase: new URL(SITE_URL),
     title: { default: `${name} — ${t.app_tagline}`, template: `%s | ${name}` },
     description: t.app_description,
     applicationName: name,
     appleWebApp: { capable: true, title: name, statusBarStyle: "default" },
-    // รูปแบรนด์ผ่าน /brand/* เสมอ (เฟส 5: แอดมินอัปโหลดแทนได้)
+    // รูปแบรนด์ผ่าน /brand/* เสมอ; ?v= = เวลาที่แอดมินอัปโหลด (เห็นรูปใหม่เร็ว)
     icons: {
-      icon: [{ url: "/brand/favicon", type: "image/png", sizes: "32x32" }],
-      apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+      icon: [{ url: brandImageUrl("/brand/favicon", brand.favicon), type: "image/png", ...(custom ? {} : { sizes: "32x32" }) }],
+      apple: [{ url: custom ? brandImageUrl("/brand/favicon", brand.favicon) : "/icons/apple-touch-icon.png", sizes: "180x180" }],
     },
     formatDetection: { telephone: false },
   };

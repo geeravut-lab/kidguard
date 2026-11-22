@@ -4,6 +4,7 @@ import { Copy } from "lucide-react";
 import { useState } from "react";
 import { createInviteAction } from "@/app/actions/staff";
 import { createSchoolAdminInviteAction } from "@/app/actions/platform";
+import { createSuperAdminInviteAction } from "@/app/actions/admin";
 import { FormMessage, SelectField } from "@/components/forms/fields";
 import { useFormAction } from "@/components/forms/use-form-action";
 import { AsyncButton, AsyncForm, SubmitButton } from "@/components/ui";
@@ -81,6 +82,20 @@ export function PlatformInviteForm({ schools }: { schools: { id: string; name: s
       <FormMessage state={state} />
       <SubmitButton variant="secondary">{t.platform_invite_admin}</SubmitButton>
       {code && <InviteLink code={code} label={t.platform_invite_link} />}
+    </AsyncForm>
+  );
+}
+
+/** เชิญผู้ดูแลแพลตฟอร์มคนใหม่ (ลิงก์ครั้งเดียว) */
+export function PlatformAdminInvite() {
+  const { t } = useI18n();
+  const { state, action, ref } = useFormAction(createSuperAdminInviteAction);
+  const code = state?.ok ? (state.data?.code as string | undefined) : undefined;
+  return (
+    <AsyncForm ref={ref} action={action} className="space-y-3">
+      <FormMessage state={state} />
+      <SubmitButton variant="secondary">{t.admins_invite_make}</SubmitButton>
+      {code && <InviteLink code={code} label={t.members_invite_link} />}
     </AsyncForm>
   );
 }

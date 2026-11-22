@@ -8,12 +8,14 @@ import { parentTh, parentEn } from "./messages/parent";
 import { staffTh, staffEn } from "./messages/staff";
 import { pickupTh, pickupEn } from "./messages/pickup";
 import { notifyTh, notifyEn } from "./messages/notify";
+import { adminTh, adminEn } from "./messages/admin";
+import { safetyTh, safetyEn } from "./messages/safety";
 
-export const th = { ...coreTh, ...authTh, ...parentTh, ...staffTh, ...pickupTh, ...notifyTh } as const;
+export const th = { ...coreTh, ...authTh, ...parentTh, ...staffTh, ...pickupTh, ...notifyTh, ...adminTh, ...safetyTh } as const;
 
 export type Dict = { [K in keyof typeof th]: string };
 
-export const en = { ...coreEn, ...authEn, ...parentEn, ...staffEn, ...pickupEn, ...notifyEn } satisfies Dict;
+export const en = { ...coreEn, ...authEn, ...parentEn, ...staffEn, ...pickupEn, ...notifyEn, ...adminEn, ...safetyEn } satisfies Dict;
 
 export type Lang = "th" | "en";
 export const LANGS: readonly Lang[] = ["th", "en"] as const;

@@ -2,6 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { DEFAULT_LANG, DICTS, isLang, type Dict, type Lang } from "./dict";
 import { applyBrandNames, DEFAULT_BRAND, type Brand } from "@/lib/brand/brand";
+import { loadBrand } from "@/lib/brand/server";
 
 export const LANG_COOKIE = "kg_lang";
 
@@ -23,7 +24,9 @@ export function brandedDict(lang: Lang, brand: Brand = DEFAULT_BRAND): Dict {
   return out;
 }
 
+/** พจนานุกรมที่สลับชื่อแบรนด์ของแอดมินแล้ว (+ brand สำหรับ metadata/ไอคอน) */
 export async function getT() {
   const lang = await getLang();
-  return { lang, t: brandedDict(lang) };
+  const brand = await loadBrand();
+  return { lang, t: brandedDict(lang, brand), brand };
 }

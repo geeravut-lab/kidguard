@@ -1,5 +1,6 @@
 "use server";
 
+import { trackEvent } from "@/lib/analytics/server";
 import { revalidatePath } from "next/cache";
 import { audit } from "@/lib/audit/server";
 import { getAuthInfo } from "@/lib/auth/me";
@@ -25,7 +26,10 @@ export async function parentCancelAction(fd: FormData): Promise<void> {
   const id = uuidSchema.safeParse(str(fd, "session"));
   if (!info || !id.success) return;
   const { data } = await supabaseAdmin().rpc("pickup_cancel", { p_user: info.id, p_session: id.data });
-  if (data === true) await audit({ by: info.id, role: "parent", action: "pickup.cancel", entity: "pickup_sessions", entityId: id.data });
+  if (data === true) {
+    await audit({ by: info.id, role: "parent", action: "pickup.cancel", entity: "pickup_sessions", entityId: id.data });
+    await trackEvent("pickup_cancelled", info.id);
+  }
   done();
 }
 
@@ -38,6 +42,7 @@ export async function parentCompleteAction(fd: FormData): Promise<void> {
   if (!error && data) {
     const r = data as Release;
     await audit({ by: info.id, role: "parent", action: "pickup.complete", entity: "pickup_sessions", entityId: id.data, schoolId: r.school_id, detail: { by_role: r.by_role } });
+    await trackEvent("pickup_completed", info.id, { schoolId: r.school_id });
     await emitPickupEvent({ kind: "released", sessionId: id.data, schoolId: r.school_id, parentUserId: r.parent_user_id, byRole: r.by_role, byUserId: info.id, completed: r.completed });
   }
   done();

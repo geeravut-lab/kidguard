@@ -1,6 +1,8 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import type { Tone } from "@/config/line-colors";
+import { parseImageRef } from "@/lib/brand/brand";
+import { loadBrand } from "@/lib/brand/server";
 import { brandedDict } from "@/lib/i18n/server";
 import type { Dict, Lang } from "@/lib/i18n/dict";
 import { pushNoticeToUser, type PushOutcome } from "@/lib/line/service";
@@ -26,7 +28,21 @@ export async function langOf(userId: string): Promise<Lang> {
 }
 export async function dictFor(userId: string): Promise<{ lang: Lang; t: Dict }> {
   const lang = await langOf(userId);
-  return { lang, t: brandedDict(lang) };
+  return { lang, t: brandedDict(lang, await loadBrand()) };
+}
+
+/** ผู้ส่งบนการ์ด LINE: ชื่อโรงเรียนตามภาษาผู้รับ (ที่แอดมินตั้ง) + โลโก้โรงเรียนถ้าเป็น PNG/JPEG */
+async function senderFor(schoolId: string, lang: Lang) {
+  try {
+    const { data } = await supabaseAdmin().from("schools").select("name_th,name_en,short_name,logo").eq("id", schoolId).maybeSingle();
+    if (!data) return undefined;
+    const logo = parseImageRef(data.logo);
+    const name = (lang === "en" && data.name_en ? data.name_en : data.name_th) || data.short_name || "";
+    const https = siteUrl().startsWith("https://");
+    return { name, logoUrl: logo && https && logo.mime !== "image/webp" ? `${siteUrl()}/brand/school/${schoolId}?v=${logo.version}` : undefined };
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -45,10 +61,11 @@ export async function notifyUser(i: NotifyInput, deps: { fetchImpl?: typeof fetc
       return { inApp: false, line: "skipped" }; // ซ้ำ (บอกไปแล้ว) หรือเขียนไม่ได้: ไม่ส่ง LINE ซ้ำ
     }
     if (!i.schoolId) return { inApp: true, line: "skipped" };
-    const { t } = await dictFor(i.userId);
+    const { t, lang } = await dictFor(i.userId);
+    const sender = await senderFor(i.schoolId, lang);
     const line = await pushNoticeToUser(
       i.userId, i.schoolId, { kind: i.kind, title: i.title, summary: i.body, fields: i.fields, link: i.link },
-      { appUrl: siteUrl(), defaultCta: t.notif_open, retryKey: id, fetchImpl: deps.fetchImpl },
+      { appUrl: siteUrl(), defaultCta: t.notif_open, retryKey: id, fetchImpl: deps.fetchImpl, sender },
     );
     return { inApp: true, line };
   } catch (e) {

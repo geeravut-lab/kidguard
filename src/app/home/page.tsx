@@ -7,6 +7,10 @@ import { requireMe } from "@/lib/auth/guards";
 import { getAuthInfo, postLoginPath } from "@/lib/auth/me";
 import { getT } from "@/lib/i18n/server";
 import { loadParentData } from "@/lib/parent-data";
+import { PlanForm } from "@/components/parent/safety-forms";
+import { Card } from "@/components/parent/sections";
+import { featureEnabled } from "@/lib/flags/server";
+import { loadApprovedKids, loadMyPlans, planDates } from "@/lib/safety/parent";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "บุตรหลานของฉัน", robots: { index: false } };
@@ -24,6 +28,10 @@ export default async function ParentHomePage() {
 
   const { data: settings } = await supabase.from("schools").select("id, lat, lng").in("id", [...new Set(data.claims.map((c) => c.school_id))]);
   const notReady = (settings ?? []).some((s) => s.lat == null);
+  const planOn = approved.length > 0 && (await featureEnabled("advance_notice"));
+  const kids = planOn ? await loadApprovedKids(info!.id) : [];
+  const dates = planDates(new Date(), lang);
+  const mine = planOn ? await loadMyPlans(kids.map((k) => k.id), dates.map((d) => d.value)) : {};
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
@@ -63,6 +71,14 @@ export default async function ParentHomePage() {
           );
         })}
       </ul>
+
+      {planOn && kids.length > 0 && (
+        <Card title={t.plans_title} lead={t.plans_lead}>
+          {[...new Set(kids.map((k) => k.school_id))].map((sid) => (
+            <PlanForm key={sid} school={sid} students={kids.filter((k) => k.school_id === sid).map((k) => ({ id: k.id, label: k.label }))} dates={dates} current={mine} />
+          ))}
+        </Card>
+      )}
 
       <ChildrenSection claims={others} schools={data.schools} classrooms={data.classrooms} />
     </div>

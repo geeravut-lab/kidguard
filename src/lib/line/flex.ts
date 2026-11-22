@@ -36,7 +36,11 @@ export function altTextOf(n: Notice): string {
   return cut(parts.join(" · "), LIMITS.altText);
 }
 
-export function buildLineMessage(n: Notice, o: { appUrl: string; defaultCta: string }) {
+/** ผู้ส่ง (ชื่อโรงเรียน + โลโก้ถ้ามี) — แสดงที่หัวการ์ด ให้คนที่อ่านบน LINE รู้ว่ามาจากใคร (ต้องเป็น PNG/JPEG บน https เท่านั้น) */
+export type Sender = { name: string; logoUrl?: string };
+export const SENDER_NAME_MAX = 40;
+
+export function buildLineMessage(n: Notice, o: { appUrl: string; defaultCta: string; sender?: Sender }) {
   const rows = (n.fields ?? []).slice(0, LIMITS.rows).map((f) => ({
     type: "box", layout: "baseline", spacing: "sm",
     contents: [
@@ -46,9 +50,22 @@ export function buildLineMessage(n: Notice, o: { appUrl: string; defaultCta: str
   }));
   return {
     type: "flex" as const,
-    altText: altTextOf(n),
+    altText: o.sender ? cut(`${cut(o.sender.name, SENDER_NAME_MAX)}: ${altTextOf(n)}`, LIMITS.altText) : altTextOf(n),
     contents: {
       type: "bubble",
+      ...(o.sender?.name
+        ? {
+            header: {
+              type: "box", layout: "horizontal", spacing: "sm", paddingBottom: "none",
+              contents: [
+                ...(o.sender.logoUrl && o.sender.logoUrl.startsWith("https://")
+                  ? [{ type: "image", url: o.sender.logoUrl, size: "24px", aspectMode: "cover", flex: 0 }]
+                  : []),
+                { type: "text", text: cut(o.sender.name, SENDER_NAME_MAX), size: "xs", color: LINE_COLORS.label, gravity: "center", wrap: false },
+              ],
+            },
+          }
+        : {}),
       body: {
         type: "box", layout: "vertical", spacing: "md",
         contents: [
@@ -66,8 +83,8 @@ export function buildLineMessage(n: Notice, o: { appUrl: string; defaultCta: str
 }
 
 /** ข้อความธรรมดา (fallback เมื่อการ์ดโดน 400) — ข้อมูลชุดเดียวกัน */
-export function buildTextMessage(n: Notice, o: { appUrl: string }) {
-  const lines = [cut(n.title, LIMITS.title)];
+export function buildTextMessage(n: Notice, o: { appUrl: string; sender?: Sender }) {
+  const lines = [...(o.sender?.name ? [cut(o.sender.name, SENDER_NAME_MAX)] : []), cut(n.title, LIMITS.title)];
   if (n.summary) lines.push(cut(n.summary, LIMITS.summary));
   for (const f of (n.fields ?? []).slice(0, LIMITS.rows)) lines.push(`${cut(f.label, LIMITS.label)}: ${cut(f.value, LIMITS.value)}`);
   lines.push(appOpenUrl(o.appUrl, n.link));

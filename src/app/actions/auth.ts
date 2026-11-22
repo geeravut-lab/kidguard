@@ -1,5 +1,6 @@
 "use server";
 
+import { trackEvent } from "@/lib/analytics/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -42,6 +43,7 @@ export async function signUpAction(_prev: ActionState, fd: FormData): Promise<Ac
   // สมัครซ้ำด้วยอีเมลที่มีอยู่ (identities ว่าง) = ไม่ได้สร้างบัญชีใหม่
   if (!data.user || (data.user.identities?.length ?? 1) === 0) return fail("err_email_taken");
   await audit({ by: data.user.id, action: "auth.signup", entity: "auth_users", entityId: data.user.id, detail: { method: "email" } });
+  await trackEvent("signup", data.user.id);
   redirect(safeNext(str(fd, "next")));
 }
 

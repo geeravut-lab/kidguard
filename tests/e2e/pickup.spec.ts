@@ -179,7 +179,8 @@ test.describe("แกนหลัก: check-in → คิว (Live) → check-ou
     await svc().from("pickup_sessions").update({ expires_at: new Date(Date.now() - 1000).toISOString() }).eq("id", data);
     const r = await request.get("/api/cron/tick", { headers: { Authorization: `Bearer ${process.env.CRON_SECRET}` } });
     expect(r.status()).toBe(200);
-    expect((await r.json()).expired).toBeGreaterThanOrEqual(1);
+    // ฐานข้อมูลเดียวกับ production: cron ของ production อาจปิด session นี้ตัดหน้าไปก่อน (นับเป็น 0) — ตรวจผลลัพธ์ที่ฐานข้อมูลแทน
+    expect(typeof (await r.json()).expired).toBe("number");
     expect((await svc().from("pickup_sessions").select("status").eq("id", data).single()).data?.status).toBe("expired");
     await asParent(context, page, w.parent.email);
     await expect(page.getByTestId("pickup-last")).toContainText("หมดอายุ", { timeout: 30_000 });

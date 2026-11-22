@@ -1,8 +1,9 @@
 import type { DictKey } from "@/lib/i18n/dict";
 import type { Me } from "@/lib/auth/me";
+import type { FeatureFlag } from "@/lib/flags/flags";
 
-export type NavIcon = "home" | "parent" | "gate" | "children" | "account" | "teacher" | "classroom" | "students" | "staff" | "settings" | "approvals" | "platform" | "pickup" | "student" | "line";
-export type NavItem = { href: string; labelKey: DictKey; icon: NavIcon };
+export type NavIcon = "home" | "parent" | "gate" | "children" | "account" | "teacher" | "classroom" | "students" | "staff" | "settings" | "approvals" | "platform" | "pickup" | "student" | "line" | "audit" | "brand" | "analytics" | "flags" | "rules" | "admins" | "passes" | "zones" | "custody" | "announce" | "tv";
+export type NavItem = { href: string; labelKey: DictKey; icon: NavIcon; flags?: readonly FeatureFlag[] };
 
 /** เมนูชุดเดียว สร้างทั้ง sidebar (desktop) และ bottom bar (มือถือ) — ดู docs/NAVIGATION-KNOWLEDGE.md */
 export const VISITOR_NAV: NavItem[] = [
@@ -16,8 +17,24 @@ const ADMIN_NAV: NavItem[] = [
   { href: "/admin/classrooms", labelKey: "nav_admin_classrooms", icon: "classroom" },
   { href: "/admin/students", labelKey: "nav_admin_students", icon: "students" },
   { href: "/admin/members", labelKey: "nav_admin_members", icon: "staff" },
-  { href: "/admin/line", labelKey: "nav_admin_line", icon: "line" },
+  { href: "/admin/line", labelKey: "nav_admin_line", icon: "line", flags: ["line"] },
+  { href: "/admin/zones", labelKey: "nav_admin_zones", icon: "zones", flags: ["zones"] },
+  { href: "/admin/custody", labelKey: "nav_admin_custody", icon: "custody", flags: ["custody_flags"] },
+  { href: "/admin/announce", labelKey: "nav_admin_announce", icon: "announce", flags: ["broadcast"] },
+  { href: "/admin/tv", labelKey: "nav_admin_tv", icon: "tv", flags: ["tv_mode"] },
+  { href: "/admin/analytics", labelKey: "nav_admin_analytics", icon: "analytics" },
+  { href: "/admin/audit", labelKey: "nav_admin_audit", icon: "audit" },
+  { href: "/admin/branding", labelKey: "nav_admin_branding", icon: "brand" },
   { href: "/admin/settings", labelKey: "nav_admin_settings", icon: "settings" },
+];
+
+const PLATFORM_NAV: NavItem[] = [
+  { href: "/platform", labelKey: "nav_platform", icon: "platform" },
+  { href: "/platform/analytics", labelKey: "nav_platform_analytics", icon: "analytics" },
+  { href: "/platform/brand", labelKey: "nav_platform_brand", icon: "brand" },
+  { href: "/platform/flags", labelKey: "nav_platform_flags", icon: "flags" },
+  { href: "/platform/rules", labelKey: "nav_platform_rules", icon: "rules" },
+  { href: "/platform/admins", labelKey: "nav_platform_admins", icon: "admins" },
 ];
 
 /** เมนูตามสิทธิ์: รวมทุกบทบาทที่ผู้ใช้มี (ไม่ซ้ำ) แล้วปิดท้ายด้วยบัญชีของฉัน */
@@ -28,8 +45,9 @@ export function navFor(me: Me | null): NavItem[] {
   if (roles.has("school_admin") || me.platform_admin) items.push(...ADMIN_NAV);
   if (roles.has("teacher")) items.push({ href: "/teacher", labelKey: "nav_teacher", icon: "teacher" });
   if (roles.has("gate_staff") || roles.has("school_admin")) items.push({ href: "/gate", labelKey: "nav_gate", icon: "gate" });
-  if (me.platform_admin) items.push({ href: "/platform", labelKey: "nav_platform", icon: "platform" });
+  if (me.platform_admin) items.push(...PLATFORM_NAV);
   if (me.role === "parent" && me.onboarded) items.push({ href: "/pickup", labelKey: "nav_pickup", icon: "pickup" });
+  if (me.role === "parent" && me.onboarded) items.push({ href: "/passes", labelKey: "nav_passes", icon: "passes", flags: ["pickup_passes"] });
   if (me.role === "parent" || (items.length === 0 && (me.students?.length ?? 0) === 0)) items.push({ href: me.onboarded ? "/home" : "/onboarding", labelKey: "nav_parent_home", icon: "children" });
   if ((me.students?.length ?? 0) > 0) items.push({ href: "/student", labelKey: "nav_student", icon: "student" });
   items.push({ href: "/profile", labelKey: "nav_profile", icon: "account" });

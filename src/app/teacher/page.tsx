@@ -4,6 +4,9 @@ import { QueueBoard } from "@/components/pickup/queue-board";
 import { requireSchoolRole } from "@/lib/auth/guards";
 import { getSchoolFingerprint } from "@/lib/live/fingerprint";
 import { loadQueue } from "@/lib/pickup/queue";
+import { PlansToday } from "@/components/pickup/plans-today";
+import { featureEnabled } from "@/lib/flags/server";
+import { loadBoardExtras, loadPlansToday } from "@/lib/safety/read";
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -15,6 +18,7 @@ export default async function TeacherPage() {
   const supabase = await createClient();
   const myRooms = me.classroom_ids;
   const fp = await getSchoolFingerprint(school.id); // ก่อนอ่านข้อมูลคิว
+  const [extras, plans, showPlans] = await Promise.all([loadBoardExtras(school.id), loadPlansToday(supabase, school.id), featureEnabled("advance_notice")]);
   const [queue, rooms, students, claims] = await Promise.all([
     loadQueue(supabase, school.id), // ฐานข้อมูลกรองให้เหลือเฉพาะนักเรียนห้องของครูคนนี้
     myRooms.length ? supabase.from("classrooms").select("id,name").in("id", myRooms).order("name") : Promise.resolve({ data: [] as { id: string; name: string }[] }),
@@ -28,8 +32,9 @@ export default async function TeacherPage() {
       <PageHead title={t.teacher_title} school={schoolName(school, lang)} />
       {myRooms.length === 0 && <p className="rounded-xl bg-warn-bg px-4 py-3 text-warn">{t.teacher_no_class}</p>}
       {myRooms.length > 0 && (
-        <QueueBoard rows={queue} topics={myRooms.map((id) => `class:${id}`)} fingerprintUrl={`/api/live?scope=school&id=${school.id}`} canVerify={false} title={t.queue_teacher_title} initial={fp} />
+        <QueueBoard rows={queue} topics={myRooms.map((id) => `class:${id}`)} fingerprintUrl={`/api/live?scope=school&id=${school.id}`} canVerify={false} title={t.queue_teacher_title} initial={fp} zones={extras.zones} paused={extras.paused} />
       )}
+      {myRooms.length > 0 && showPlans && <PlansToday plans={plans} t={t} />}
       {myRooms.length > 0 && (
         <section className="space-y-3">
           <h2 className="text-lg font-semibold">{t.teacher_claims_title}</h2>

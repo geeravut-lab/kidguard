@@ -1,5 +1,6 @@
 "use server";
 
+import { trackEvent } from "@/lib/analytics/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { fail, mapDbError, ok, type ActionState } from "@/lib/action";
@@ -25,6 +26,10 @@ export async function decideClaimAction(fd: FormData): Promise<void> {
   if (!error) {
     await audit({ by: c.me.user_id, role: roleOf(c), action: "guardian.claim_decide", entity: "guardian_links", entityId: id.data, schoolId: c.school.id, detail: { approved: approve, student_id: (data as { student_id?: string })?.student_id ?? null } });
     await notifyClaimDecision(id.data);
+    if (approve) {
+      const { data: l } = await supabaseAdmin().from("guardian_links").select("user_id").eq("id", id.data).maybeSingle();
+      if (l) await trackEvent("guardian_linked", l.user_id, { schoolId: c.school.id });
+    }
   } else console.error("decide_claim failed", error.code, error.message.slice(0, 80));
   revalidatePath("/", "layout");
 }

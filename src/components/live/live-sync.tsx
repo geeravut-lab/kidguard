@@ -18,6 +18,8 @@ type Props = {
   quiet?: boolean;
   /** ลายเซ็น ณ ตอน server render (คำนวณก่อนอ่านข้อมูล) — ใช้เป็น baseline เพื่อไม่พลาดการเปลี่ยนที่เกิดก่อน client เริ่มถาม */
   initial?: string;
+  /** จอที่ไม่มีบัญชี/ต้องเร็วคงที่ (เช่น จอ TV): ไม่ช้าลงเมื่อเงียบ */
+  fast?: boolean;
 };
 
 const typing = () => {
@@ -31,7 +33,7 @@ const typing = () => {
  *  - ถ้า socket ใช้ไม่ได้: โพลล์ลายนิ้วมือ (ช้าลงเรื่อย ๆ ตอนเงียบ); กลับมาที่แท็บ/ออนไลน์ → ถามหนึ่งครั้งเพื่อตามให้ทัน
  *  - ไม่ refresh ใต้มือผู้ใช้ขณะพิมพ์ และพักเมื่อแท็บถูกซ่อน
  */
-export function LiveSync({ topics, fingerprintUrl, fallbackMs = 5000, quiet = false, initial }: Props) {
+export function LiveSync({ topics, fingerprintUrl, fallbackMs = 5000, quiet = false, initial, fast = false }: Props) {
   const router = useRouter();
   const { t } = useI18n();
   const [state, setState] = useState<"connecting" | "live" | "poll">("connecting");
@@ -91,7 +93,7 @@ export function LiveSync({ topics, fingerprintUrl, fallbackMs = 5000, quiet = fa
     function schedulePoll() {
       if (disposed || stopped) return;
       const base = socketOk() ? 30_000 : fallbackMs;
-      const slow = idle > 18 ? 4 : idle > 6 ? 2 : 1; // เงียบนาน → ช้าลงเรื่อย ๆ (สูงสุด 60 วินาที)
+      const slow = fast ? 1 : idle > 18 ? 4 : idle > 6 ? 2 : 1; // เงียบนาน → ช้าลงเรื่อย ๆ (สูงสุด 60 วินาที)
       const delay = document.hidden ? 30_000 : Math.min(60_000, base * slow);
       pollTimer = setTimeout(async () => {
         await check();
@@ -157,7 +159,7 @@ export function LiveSync({ topics, fingerprintUrl, fallbackMs = 5000, quiet = fa
       window.removeEventListener("online", onVisible);
       void sb?.removeAllChannels();
     };
-  }, [key, fingerprintUrl, fallbackMs, router, initial]);
+  }, [key, fingerprintUrl, fallbackMs, router, initial, fast]);
 
   if (quiet) return null;
   return (
