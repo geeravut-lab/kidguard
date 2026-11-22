@@ -14,6 +14,10 @@ type Props = {
   fingerprintUrl: string;
   /** ช่วงโพลล์ตอนใช้ทางสำรอง (มิลลิวินาที) */
   fallbackMs?: number;
+  /** ไม่แสดงตัวบอกสถานะ (ใช้กับตัวฟังกลางใน AppShell) */
+  quiet?: boolean;
+  /** ลายเซ็น ณ ตอน server render (คำนวณก่อนอ่านข้อมูล) — ใช้เป็น baseline เพื่อไม่พลาดการเปลี่ยนที่เกิดก่อน client เริ่มถาม */
+  initial?: string;
 };
 
 const typing = () => {
@@ -27,7 +31,7 @@ const typing = () => {
  *  - ถ้า socket ใช้ไม่ได้: โพลล์ลายนิ้วมือ (ช้าลงเรื่อย ๆ ตอนเงียบ); กลับมาที่แท็บ/ออนไลน์ → ถามหนึ่งครั้งเพื่อตามให้ทัน
  *  - ไม่ refresh ใต้มือผู้ใช้ขณะพิมพ์ และพักเมื่อแท็บถูกซ่อน
  */
-export function LiveSync({ topics, fingerprintUrl, fallbackMs = 5000 }: Props) {
+export function LiveSync({ topics, fingerprintUrl, fallbackMs = 5000, quiet = false, initial }: Props) {
   const router = useRouter();
   const { t } = useI18n();
   const [state, setState] = useState<"connecting" | "live" | "poll">("connecting");
@@ -38,7 +42,7 @@ export function LiveSync({ topics, fingerprintUrl, fallbackMs = 5000 }: Props) {
     let refreshTimer: ReturnType<typeof setTimeout> | undefined;
     let pollTimer: ReturnType<typeof setTimeout> | undefined;
     let tokenTimer: ReturnType<typeof setInterval> | undefined;
-    let baseline: string | null = null;
+    let baseline: string | null = initial ?? null;
     let pendingWhileHidden = false;
     let idle = 0;
     let stopped = false;
@@ -153,8 +157,9 @@ export function LiveSync({ topics, fingerprintUrl, fallbackMs = 5000 }: Props) {
       window.removeEventListener("online", onVisible);
       void sb?.removeAllChannels();
     };
-  }, [key, fingerprintUrl, fallbackMs, router]);
+  }, [key, fingerprintUrl, fallbackMs, router, initial]);
 
+  if (quiet) return null;
   return (
     <span data-testid="live-status" data-state={state} className="inline-flex items-center gap-1.5 text-xs text-ink-soft">
       <span aria-hidden="true" className={cn("size-2 rounded-full", state === "live" ? "bg-success" : state === "poll" ? "bg-warn" : "bg-line")} />

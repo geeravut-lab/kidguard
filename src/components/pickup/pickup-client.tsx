@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { parentArriveAction, parentCancelAction, parentCompleteAction } from "@/app/actions/pickup";
 import { SelectField } from "@/components/forms/fields";
-import { LiveSync } from "@/components/live/live-sync";
 import { Card } from "@/components/parent/sections";
 import { AsyncButton, AsyncForm, SubmitButton } from "@/components/ui";
 import { cn } from "@/lib/cn";
@@ -51,9 +50,6 @@ export function PickupClient(props: {
     <div className="mx-auto max-w-xl space-y-5">
       <h1 className="text-2xl font-bold">{t.pickup_title}</h1>
       {props.active ? <TravelView {...props} active={props.active} /> : <StartView {...props} />}
-      <div className="flex justify-end">
-        <LiveSync topics={[`u:${props.userId}`]} fingerprintUrl="/api/live?scope=me" />
-      </div>
     </div>
   );
 }

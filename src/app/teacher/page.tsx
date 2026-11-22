@@ -2,6 +2,7 @@ import { ClaimCards, type ClaimRow, type StudentOption } from "@/components/staf
 import { PageHead, schoolName } from "@/components/staff/page-head";
 import { QueueBoard } from "@/components/pickup/queue-board";
 import { requireSchoolRole } from "@/lib/auth/guards";
+import { getSchoolFingerprint } from "@/lib/live/fingerprint";
 import { loadQueue } from "@/lib/pickup/queue";
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
@@ -13,6 +14,7 @@ export default async function TeacherPage() {
   const { lang, t } = await getT();
   const supabase = await createClient();
   const myRooms = me.classroom_ids;
+  const fp = await getSchoolFingerprint(school.id); // ก่อนอ่านข้อมูลคิว
   const [queue, rooms, students, claims] = await Promise.all([
     loadQueue(supabase, school.id), // ฐานข้อมูลกรองให้เหลือเฉพาะนักเรียนห้องของครูคนนี้
     myRooms.length ? supabase.from("classrooms").select("id,name").in("id", myRooms).order("name") : Promise.resolve({ data: [] as { id: string; name: string }[] }),
@@ -26,7 +28,7 @@ export default async function TeacherPage() {
       <PageHead title={t.teacher_title} school={schoolName(school, lang)} />
       {myRooms.length === 0 && <p className="rounded-xl bg-warn-bg px-4 py-3 text-warn">{t.teacher_no_class}</p>}
       {myRooms.length > 0 && (
-        <QueueBoard rows={queue} topics={myRooms.map((id) => `class:${id}`)} fingerprintUrl={`/api/live?scope=school&id=${school.id}`} canVerify={false} title={t.queue_teacher_title} />
+        <QueueBoard rows={queue} topics={myRooms.map((id) => `class:${id}`)} fingerprintUrl={`/api/live?scope=school&id=${school.id}`} canVerify={false} title={t.queue_teacher_title} initial={fp} />
       )}
       {myRooms.length > 0 && (
         <section className="space-y-3">

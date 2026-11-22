@@ -16,7 +16,7 @@ export type QueueRow = {
 };
 
 /** คิวรับนักเรียน (จอประตู/ครู): ตัวใหญ่ อ่านจากระยะไกล; ลำดับมาจากฐานข้อมูล (เรียงเหมือนกันทุกจอ) */
-export function QueueBoard({ rows, topics, fingerprintUrl, canVerify, title }: { rows: QueueRow[]; topics: string[]; fingerprintUrl: string; canVerify: boolean; title?: string }) {
+export function QueueBoard({ rows, topics, fingerprintUrl, canVerify, title, initial }: { rows: QueueRow[]; topics: string[]; fingerprintUrl: string; canVerify: boolean; title?: string; initial?: string }) {
   const { t } = useI18n();
   return (
     <section aria-labelledby="qb-title" data-testid="queue-board">
@@ -27,7 +27,7 @@ export function QueueBoard({ rows, topics, fingerprintUrl, canVerify, title }: {
         </div>
         <div className="flex items-center gap-3 text-sm">
           <span className="rounded-full bg-surface-2 px-3 py-1 font-medium" data-testid="queue-count">{fmt(t.queue_count, { n: rows.length })}</span>
-          <LiveSync topics={topics} fingerprintUrl={fingerprintUrl} />
+          <LiveSync topics={topics} fingerprintUrl={fingerprintUrl} initial={initial} />
         </div>
       </div>
 

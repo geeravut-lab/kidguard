@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { PickupClient, type ActiveSession, type LastSession, type PickupChild, type PickupSchool } from "@/components/pickup/pickup-client";
 import { requireMe } from "@/lib/auth/guards";
 import { getAuthInfo, postLoginPath } from "@/lib/auth/me";
+import { getMyFingerprint } from "@/lib/live/fingerprint";
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,6 +21,7 @@ export default async function PickupPage() {
   const me = await requireMe("/pickup");
   if (me.role !== "parent") redirect(postLoginPath(me));
   if (!me.onboarded) redirect("/onboarding");
+  await getMyFingerprint(); // ก่อนอ่านข้อมูล (แคชเดียวกับ AppShell)
   const { lang } = await getT();
   const info = await getAuthInfo();
   const supabase = await createClient();

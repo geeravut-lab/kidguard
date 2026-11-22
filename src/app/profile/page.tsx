@@ -7,6 +7,7 @@ import { getT } from "@/lib/i18n/server";
 import { loadParentData } from "@/lib/parent-data";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/parent/sections";
+import { LineCard, type LineChannelRow } from "@/components/notify/line-card";
 
 export const metadata = { title: "บัญชีของฉัน", robots: { index: false } };
 
@@ -14,6 +15,7 @@ export default async function ProfilePage() {
   const me = await requireMe("/profile");
   const { lang, t } = await getT();
   const info = await getAuthInfo();
+  const lineRows = ((await (await createClient()).rpc("my_line_channels")).data ?? []) as LineChannelRow[];
   const data = me.role === "parent" ? await loadParentData(await createClient(), info!.id, lang) : null;
   return (
     <div className="mx-auto max-w-2xl space-y-5">
@@ -22,6 +24,7 @@ export default async function ProfilePage() {
         <NameForm defaultName={me.display_name ?? ""} />
         <p className="text-sm text-ink-soft">{info?.email}</p>
       </Card>
+      <LineCard rows={lineRows} />
       <Card title={t.profile_lang_title}>
         <LangSwitch lang={lang} t={t} />
       </Card>

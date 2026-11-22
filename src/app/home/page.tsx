@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { CarFront, Clock3, GraduationCap } from "lucide-react";
 import { ChildrenSection, StatusChip } from "@/components/parent/sections";
 import { AsyncLink } from "@/components/ui";
+import { StudentInviteButton } from "@/components/notify/student-invite-button";
 import { requireMe } from "@/lib/auth/guards";
 import { getAuthInfo, postLoginPath } from "@/lib/auth/me";
 import { getT } from "@/lib/i18n/server";
@@ -57,6 +58,7 @@ export default async function ParentHomePage() {
                 <GraduationCap className="size-4 text-primary" aria-hidden="true" />
                 <span className="text-ink-soft">{t.home_homeroom}:</span> {teachers.length ? teachers.join(", ") : t.teacher_step_none}
               </p>
+              {c.student_id && <div className="mt-2"><StudentInviteButton studentId={c.student_id} /></div>}
             </li>
           );
         })}

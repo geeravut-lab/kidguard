@@ -1,7 +1,7 @@
 import type { DictKey } from "@/lib/i18n/dict";
 import type { Me } from "@/lib/auth/me";
 
-export type NavIcon = "home" | "parent" | "gate" | "children" | "account" | "teacher" | "classroom" | "students" | "staff" | "settings" | "approvals" | "platform" | "pickup";
+export type NavIcon = "home" | "parent" | "gate" | "children" | "account" | "teacher" | "classroom" | "students" | "staff" | "settings" | "approvals" | "platform" | "pickup" | "student" | "line";
 export type NavItem = { href: string; labelKey: DictKey; icon: NavIcon };
 
 /** เมนูชุดเดียว สร้างทั้ง sidebar (desktop) และ bottom bar (มือถือ) — ดู docs/NAVIGATION-KNOWLEDGE.md */
@@ -16,6 +16,7 @@ const ADMIN_NAV: NavItem[] = [
   { href: "/admin/classrooms", labelKey: "nav_admin_classrooms", icon: "classroom" },
   { href: "/admin/students", labelKey: "nav_admin_students", icon: "students" },
   { href: "/admin/members", labelKey: "nav_admin_members", icon: "staff" },
+  { href: "/admin/line", labelKey: "nav_admin_line", icon: "line" },
   { href: "/admin/settings", labelKey: "nav_admin_settings", icon: "settings" },
 ];
 
@@ -29,7 +30,8 @@ export function navFor(me: Me | null): NavItem[] {
   if (roles.has("gate_staff") || roles.has("school_admin")) items.push({ href: "/gate", labelKey: "nav_gate", icon: "gate" });
   if (me.platform_admin) items.push({ href: "/platform", labelKey: "nav_platform", icon: "platform" });
   if (me.role === "parent" && me.onboarded) items.push({ href: "/pickup", labelKey: "nav_pickup", icon: "pickup" });
-  if (me.role === "parent" || items.length === 0) items.push({ href: me.onboarded ? "/home" : "/onboarding", labelKey: "nav_parent_home", icon: "children" });
+  if (me.role === "parent" || (items.length === 0 && (me.students?.length ?? 0) === 0)) items.push({ href: me.onboarded ? "/home" : "/onboarding", labelKey: "nav_parent_home", icon: "children" });
+  if ((me.students?.length ?? 0) > 0) items.push({ href: "/student", labelKey: "nav_student", icon: "student" });
   items.push({ href: "/profile", labelKey: "nav_profile", icon: "account" });
   return items;
 }

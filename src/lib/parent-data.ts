@@ -9,6 +9,7 @@ type LinkRow = {
   claimed_name: string;
   claimed_teacher_name: string | null;
   claimed_classroom_id: string;
+  student_id: string | null;
   school_id: string;
   classrooms: { name: string } | null;
   students: { first_name: string; last_name: string; nickname: string | null } | null;
@@ -17,7 +18,7 @@ type LinkRow = {
 export type ParentData = {
   persons: Person[];
   vehicles: Vehicle[];
-  claims: (Claim & { classroom_id: string; school_id: string; claimed_teacher_name: string | null })[];
+  claims: (Claim & { classroom_id: string; school_id: string; claimed_teacher_name: string | null; student_id: string | null })[];
   schools: SchoolOption[];
   classrooms: Record<string, ClassroomOption[]>;
   consented: boolean;
@@ -30,7 +31,7 @@ export async function loadParentData(supabase: SupabaseClient, userId: string, l
     supabase.from("vehicles").select("id,plate,province,color,model").order("created_at"),
     supabase
       .from("guardian_links")
-      .select("id,status,claimed_name,claimed_teacher_name,claimed_classroom_id,school_id,classrooms:claimed_classroom_id(name),students(first_name,last_name,nickname)")
+      .select("id,status,claimed_name,claimed_teacher_name,claimed_classroom_id,student_id,school_id,classrooms:claimed_classroom_id(name),students(first_name,last_name,nickname)")
       .order("created_at"),
     supabase.from("schools").select("id,name_th,name_en").eq("active", true).order("created_at"),
     supabase.from("consents").select("id", { count: "exact", head: true }).eq("user_id", userId).eq("kind", "privacy"),
@@ -53,6 +54,7 @@ export async function loadParentData(supabase: SupabaseClient, userId: string, l
       claimed_name: r.claimed_name,
       claimed_teacher_name: r.claimed_teacher_name,
       classroom_id: r.claimed_classroom_id,
+      student_id: r.student_id,
       school_id: r.school_id,
       classroom_name: r.classrooms?.name ?? "",
       student_label: r.students ? `${r.students.first_name} ${r.students.last_name}`.trim() : null,

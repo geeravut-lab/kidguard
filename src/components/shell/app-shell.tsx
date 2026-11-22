@@ -1,7 +1,10 @@
 import type { ReactNode } from "react";
 import { LogoMark } from "@/components/logo";
 import { navFor } from "@/config/nav";
-import { getMe } from "@/lib/auth/me";
+import { getMe, getUnreadCount } from "@/lib/auth/me";
+import { getMyFingerprint } from "@/lib/live/fingerprint";
+import { LiveSync } from "@/components/live/live-sync";
+import { NotificationBell } from "@/components/notify/notification-bell";
 import { UserCard } from "./user-card";
 import type { Dict, Lang } from "@/lib/i18n/dict";
 import { DEFAULT_BRAND } from "@/lib/brand/brand";
@@ -11,16 +14,19 @@ import { BottomBar, SidebarNav, type NavEntry } from "./nav-links";
 
 export async function AppShell({ lang, t, children }: { lang: Lang; t: Dict; children: ReactNode }) {
   const me = await getMe();
+  const fp = me ? await getMyFingerprint() : undefined; // ก่อนอ่านจำนวนที่ยังไม่อ่าน (baseline ต้องไม่ใหม่กว่าข้อมูลที่แสดง)
+  const unread = me ? await getUnreadCount() : 0;
   const items: NavEntry[] = navFor(me).map((i) => ({ href: i.href, label: t[i.labelKey], icon: i.icon }));
   const name = lang === "th" ? DEFAULT_BRAND.name_th : DEFAULT_BRAND.name_en;
 
   const brandBlock = (
     <div className="flex items-center gap-3">
       <LogoMark size={40} />
-      <div className="leading-tight">
+      <div className="min-w-0 flex-1 leading-tight">
         <p className="text-lg font-bold">{name}</p>
-        <p className="text-xs text-ink-soft">{t.school_default_name}</p>
+        <p className="truncate text-xs text-ink-soft">{t.school_default_name}</p>
       </div>
+      {me && <NotificationBell count={unread} t={t} />}
     </div>
   );
 
@@ -56,6 +62,7 @@ export async function AppShell({ lang, t, children }: { lang: Lang; t: Dict; chi
         </main>
       </div>
 
+      {me && <LiveSync quiet topics={[`u:${me.user_id}`]} fingerprintUrl="/api/live?scope=me" initial={fp} />}
       <BottomBar
         items={items}
         moreLabel={t.nav_more}

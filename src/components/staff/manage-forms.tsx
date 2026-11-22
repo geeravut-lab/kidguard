@@ -6,6 +6,7 @@ import { createSchoolAction } from "@/app/actions/platform";
 import { FormMessage, SelectField, TextField, inputClass } from "@/components/forms/fields";
 import { useFormAction } from "@/components/forms/use-form-action";
 import { AsyncButton, AsyncForm, SubmitButton } from "@/components/ui";
+import { StudentInviteButton } from "@/components/notify/student-invite-button";
 import { useI18n } from "@/lib/i18n/client";
 import { fmt } from "@/lib/i18n/dict";
 
@@ -103,6 +104,7 @@ export function StudentRowActions({ id, classroomId, status, classrooms }: { id:
           {t.students_move}
         </SubmitButton>
       </AsyncForm>
+      {status === "active" && <StudentInviteButton studentId={id} />}
       {status === "active" && (
         <AsyncForm action={updateStudentAction}>
           <input type="hidden" name="id" value={id} />

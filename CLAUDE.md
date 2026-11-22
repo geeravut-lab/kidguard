@@ -4,7 +4,7 @@
 แผนทั้งหมด: `docs/KIDGUARD-PLAN.md` · สารบัญ knowledge: `docs/Knowledge-Index.md`
 
 ## สถานะ
-แผน **อนุมัติแล้ว** (คำตัดสินใน `docs/KIDGUARD-PLAN.md` §16) · **เฟส 0–2 เสร็จ** (บัญชีผู้ใช้/สิทธิ์/Audit แกน/โรงเรียน/ลงทะเบียนผู้ปกครอง/อนุมัติ) · รอคำสั่งเริ่มเฟส 3 · จบแต่ละเฟสต้องหยุดรอคำสั่งเฟสถัดไป
+แผน **อนุมัติแล้ว** (คำตัดสินใน `docs/KIDGUARD-PLAN.md` §16) · **เฟส 0–4 เสร็จ** (บัญชี/สิทธิ์/Audit แกน/โรงเรียน/ลงทะเบียน/อนุมัติ/check-in+คิวสด/Live sync/LINE+แจ้งเตือน/จอนักเรียน) · รอคำสั่งเริ่มเฟส 5 · จบแต่ละเฟสต้องหยุดรอคำสั่งเฟสถัดไป
 
 ## ข้อมูลระบบ
 - Production: https://kidguards.vercel.app/ (ยึดชื่อนี้ — มี s; ไม่ใช่ `kidguard.vercel.app` ในตัวอย่างของ SSO doc)
@@ -36,3 +36,6 @@
 - ความหน่วง sandbox→Supabase ~0.4–0.6 วินาทีต่อการเรียก: เทสต์ e2e ที่มีหลายขั้นจึงตั้ง timeout สูง (production ไม่ช้าเท่านี้ เพราะ functions อยู่ `icn1`)
 - สร้างลิงก์เชิญครั้งแรก: `node scripts/create-invite.mjs --role super_admin` (ต้องมี env คีย์)
 - Supabase region ap-northeast-2 (โซล); Vercel functions ตั้ง `icn1` ให้ใกล้ฐานข้อมูล
+- ตัวแปร env ที่แอปต้องมี (Vercel): `NEXT_PUBLIC_SUPABASE_URL/ANON_KEY/SITE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `APP_ENCRYPTION_KEY` (base64 32 ไบต์), `CRON_SECRET`, `AIVORA_APP_SLUG/AIVORA_HUB_URL`; ไม่บังคับ: `GOOGLE_ROUTES_API_KEY`, `ETA_DAILY_CAP`, `LINE_API_BASE` (ใช้ชี้ตัวจำลองตอนทดสอบ)
+- เทสต์ e2e ที่เกี่ยวกับ LINE ฝั่ง local ตั้ง `LINE_API_BASE=http://127.0.0.1:9` ไว้แล้วใน `playwright.config.ts` (ไม่ยิง LINE จริง); การทดสอบ LINE จริง (ส่งการ์ดถึงมือถือ) ต้องให้คนทำ
+- Live sync: ทุกหน้าที่แสดงสถานะสด ต้องส่งลายเซ็น ณ ตอน render (`lib/live/fingerprint.ts`) ให้ `LiveSync` เป็น baseline และเรียก "ก่อน" อ่านข้อมูลของหน้า

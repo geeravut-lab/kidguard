@@ -4,26 +4,15 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { fail, mapDbError, ok, type ActionState } from "@/lib/action";
 import { audit } from "@/lib/audit/server";
-import { resolveSchool, type SchoolCtx } from "@/lib/auth/guards";
-import { getMe, type Me, type SchoolRole } from "@/lib/auth/me";
+import { guardSchool, roleOfCtx } from "@/lib/auth/action-guard";
 import { parseStudentRows } from "@/lib/csv";
+import { notifyClaimDecision } from "@/lib/notify/claims";
 import { hashInviteCode, INVITE_TTL_DAYS, makeInviteCode } from "@/lib/invites";
-import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { str, uuidSchema } from "@/lib/validation";
 
-type Ctx = { me: Me; school: SchoolCtx; supabase: Awaited<ReturnType<typeof createClient>> };
-
-/** ตรวจสิทธิ์เป็นบรรทัดแรกของทุก action (การซ่อนเมนูไม่ใช่การควบคุมสิทธิ์) — RLS/ฟังก์ชัน SQL ตรวจซ้ำอีกชั้น */
-async function guard(roles: SchoolRole[]): Promise<Ctx | null> {
-  const me = await getMe();
-  if (!me) return null;
-  const school = await resolveSchool(me);
-  if (!school) return null;
-  if (!me.platform_admin && !school.roles.some((r) => roles.includes(r))) return null;
-  return { me, school, supabase: await createClient() };
-}
-const roleOf = (c: Ctx) => (c.me.platform_admin ? "super_admin" : c.school.roles[0]);
+const guard = guardSchool;
+const roleOf = roleOfCtx;
 
 // ===== คำขอผูกนักเรียน =====
 export async function decideClaimAction(fd: FormData): Promise<void> {
@@ -35,6 +24,7 @@ export async function decideClaimAction(fd: FormData): Promise<void> {
   const { data, error } = await c.supabase.rpc("decide_claim", { p_link: id.data, p_approve: approve, p_student: student.success ? student.data : null });
   if (!error) {
     await audit({ by: c.me.user_id, role: roleOf(c), action: "guardian.claim_decide", entity: "guardian_links", entityId: id.data, schoolId: c.school.id, detail: { approved: approve, student_id: (data as { student_id?: string })?.student_id ?? null } });
+    await notifyClaimDecision(id.data);
   } else console.error("decide_claim failed", error.code, error.message.slice(0, 80));
   revalidatePath("/", "layout");
 }

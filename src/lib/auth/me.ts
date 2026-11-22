@@ -15,6 +15,7 @@ export type Me = {
   is_owner: boolean;
   memberships: Membership[];
   classroom_ids: string[];
+  students: { student_id: string; school_id: string }[];
 };
 export type AuthInfo = { id: string; email: string | null; hasPassword: boolean };
 
@@ -37,6 +38,14 @@ export const getMe = cache(async (): Promise<Me | null> => {
 });
 
 export const isStaff = (me: Me) => me.platform_admin || me.memberships.length > 0;
+export const isStudent = (me: Me) => (me.students?.length ?? 0) > 0;
+
+/** จำนวนแจ้งเตือนที่ยังไม่อ่าน (RLS: เห็นเฉพาะของตัวเอง) */
+export const getUnreadCount = cache(async (): Promise<number> => {
+  const supabase = await createClient();
+  const { count } = await supabase.from("app_notifications").select("id", { count: "exact", head: true }).is("read_at", null);
+  return count ?? 0;
+});
 export const rolesOf = (me: Me) => new Set(me.memberships.map((m) => m.role));
 
 /** หน้าแรกหลังล็อกอิน: เจ้าหน้าที่ไปหน้าทำงานตามสิทธิ์; ผู้ปกครองไปลงทะเบียน/หน้าบุตรหลาน */
@@ -46,5 +55,6 @@ export function postLoginPath(me: Me): string {
   if (r.has("teacher")) return "/teacher";
   if (r.has("gate_staff")) return "/gate";
   if (me.platform_admin) return "/platform";
+  if (isStudent(me) && !me.role) return "/student";
   return me.role === "parent" && me.onboarded ? "/home" : "/onboarding";
 }
