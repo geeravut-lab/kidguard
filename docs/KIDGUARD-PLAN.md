@@ -568,3 +568,6 @@ Aivora SSO จริง (ตั๋ว 60 วินาที), เบราว์
 **Migrations:** 0012 safety features (`zones`, `custody_flags`, `pickup_passes`, `dismissal_plans`, `tv_displays`, `broadcasts`, คอลัมน์เวลาเลิกเรียน/พักการรับ/เสียง/TV, ปรับ `pickup_start`/`pickup_release`/`pickup_call`/`pickup_queue`)
 
 **ข้อจำกัดที่รู้ (ส่งต่อเฟส 7):** การส่ง LINE ของประกาศใช้ `after()` ทีละ 10 คน (พอสำหรับโรงเรียนหลักร้อยถึงพัน ถ้ามากกว่านั้นควรทำคิวในตาราง) · การสแกน QR ต้องใช้เบราว์เซอร์ที่มี `BarcodeDetector` (Chrome/Android; iOS Safari ยังไม่มี → พิมพ์รหัส) · เสียงเรียกขึ้นกับเสียงภาษาไทยที่ติดมากับเครื่อง
+
+### คู่มือฉบับสั้น (Quick Guide)
+`docs/guides/KidGuard-QuickGuide.pdf` (11 หน้า) และ `docs/guides/png/*.png` รายหน้า · ภาษาไทย ธีมสีและฟอนต์เดียวกับแอป (Noto Sans Thai + Geist, Guard Teal-Blue + Amber) · ภาพประกอบเป็นหน้าจอจริงของระบบด้วยข้อมูลสมมุติ (แผนที่ในภาพเป็นภาพประกอบ) · แยกตามอุปกรณ์: ผู้ปกครอง/นักเรียน/อาจารย์ประจำชั้น = สมาร์ตโฟน; คิวส่งนักเรียนและจอ TV = จอใหญ่; ผู้ดูแลโรงเรียน = คอมพิวเตอร์ · สร้างใหม่: `pnpm guides:shots` (ต้องมีคีย์ใน env และ `pnpm build` แล้ว) ตามด้วย `pnpm guides:build`

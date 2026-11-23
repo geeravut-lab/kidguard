@@ -10,3 +10,7 @@ test-results
 !.env.example
 *.tsbuildinfo
 next-env.d.ts
+
+# คู่มือ: ภาพหน้าจอ/HTML สร้างใหม่ได้ด้วย pnpm guides:shots && pnpm guides:build
+docs/guides/shots
+docs/guides/kidguard-quick-guide.html
