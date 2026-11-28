@@ -1,6 +1,6 @@
 // สคริปต์ถ่ายภาพหน้าจอจริงของระบบสำหรับทำคู่มือ (ข้อมูลสมมุติ ลบทิ้งท้ายรัน) — ไม่ใช่เทสต์ของระบบ
 import { test, type Page } from "@playwright/test";
-import { addMember, admin, cleanup, makeClassroom, makeParent, makeSchool, makeStudent, makeUser, setSchoolLocation } from "../db/helpers";
+import { addMember, admin, cleanup, makeClassroom, makeParent, makeSchool, makeStudent, makeUser, rid, setSchoolLocation } from "../db/helpers";
 import { encryptSecret } from "../../src/lib/crypto";
 import { hashToken } from "../../src/lib/safety/pure-hash";
 import { loginUI } from "../e2e/helpers";
@@ -41,8 +41,21 @@ async function mockTiles(ctx: import("@playwright/test").BrowserContext, helper:
   });
 }
 
+/** ซ่อนชื่อจริง (โรงเรียน/เจ้าของระบบ) ในภาพที่ถ่ายจากหน้าแพลตฟอร์ม ซึ่งเห็นข้อมูลทุกโรงเรียน */
+async function mask(p: Page) {
+  await p.evaluate(() => {
+    const map: [string, string][] = [["Geeravut Kong-on", "เจ้าของแพลตฟอร์ม (ตัวอย่าง)"], ["โรงเรียนกรุงเทพคริสเตียน (สาธิต)", "โรงเรียนตัวอย่าง บี"], ["โรงเรียนกรุงเทพคริสเตียน", "โรงเรียนตัวอย่าง เอ"], ["krungthep-christian", "school-a"], ["demo-bkc", "school-b"], ["BKC-Demo", "บี"], ["ASCS", "เอ"]];
+    const sub = (t: string) => map.reduce((a, [f, r]) => a.split(f).join(r), t);
+    const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let n = w.nextNode(); n; n = w.nextNode()) { const v = n.nodeValue ?? ""; const r = sub(v); if (r !== v) n.nodeValue = r; }
+    document.querySelectorAll("option").forEach((o) => { o.textContent = sub(o.textContent ?? ""); });
+  });
+}
+
 async function shot(p: Page, name: string, o: { full?: boolean } = {}) {
+  if (name.startsWith("g-onb") || name === "g-home-pending") await p.evaluate(() => window.scrollTo(0, 0));
   await p.waitForTimeout(900);
+  if (name.startsWith("g-platform")) { await mask(p); await p.waitForTimeout(200); }
   await p.screenshot({ path: `${OUT}/${name}.png`, fullPage: !!o.full });
 }
 
@@ -263,14 +276,15 @@ test("ถ่ายภาพคู่มือฉบับละเอียด",
   const M2 = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, locale: "th-TH" as const };
 
   // ผู้ปกครองใหม่: ลงทะเบียนทีละขั้น
-  const nu = await makeUser("gmnew");
+  const nuEmail = `zz_test_gmnew_${rid()}@kidguard.test`;
   const nctx = await browser.newContext(M2);
   const np = await nctx.newPage();
   await np.goto("/signup");
   await np.getByLabel("ชื่อที่ใช้แสดง").fill("คุณแม่ตัวอย่าง");
-  await np.getByLabel("อีเมล").fill(nu.email);
+  await np.getByLabel("อีเมล").fill("somying@example.com");
   await np.getByLabel("รหัสผ่าน", { exact: true }).fill("Zz-test-pass-" + "12345");
   await shot(np, "g-signup-filled");
+  await np.getByLabel("อีเมล").fill(nuEmail);
   await np.getByRole("button", { name: "สมัครใช้งาน", exact: true }).click();
   await np.getByRole("heading", { name: "คุณเป็นใคร" }).waitFor({ timeout: 30_000 });
   await shot(np, "g-role");
@@ -283,6 +297,8 @@ test("ถ่ายภาพคู่มือฉบับละเอียด",
   await np.getByLabel("จังหวัด").selectOption("กรุงเทพมหานคร");
   await np.getByRole("button", { name: "เพิ่มรถ" }).click();
   await np.getByText("กข1234").waitFor();
+  await np.getByRole("button", { name: "เพิ่มรถ" }).and(np.locator(":not([disabled])")).waitFor({ timeout: 30_000 });
+  await np.waitForTimeout(2500);
   await shot(np, "g-onb-1");
   await np.getByRole("button", { name: "ถัดไป" }).click();
   const sel = np.getByLabel("โรงเรียน");
@@ -357,9 +373,26 @@ test("ถ่ายภาพคู่มือฉบับละเอียด",
   await g.reload();
   await g.getByTestId("held-badge").waitFor({ timeout: 30_000 });
   await g.evaluate(() => window.scrollTo(0, 0));
-  await shot(g, "g-gate-held-paused");
+  await shot(g, "g-gate-held-paused", { full: true });
   await svc().from("school_settings").update({ pickup_paused: false, pickup_pause_note: null }).eq("school_id", school);
   await svc().from("custody_flags").delete().eq("school_id", school);
+
+  // ฟอร์มผู้ดูแล (หน้าต่างแคบ ตัวอักษรอ่านง่ายเมื่อย่อลงหน้ากระดาษ)
+  const fctx = await browser.newContext({ viewport: { width: 560, height: 860 }, deviceScaleFactor: 1.5, locale: "th-TH" });
+  const fp = await fctx.newPage();
+  await loginUI(fp, adm.email, `/admin/custody?student=${sids[0]}`);
+  await fp.getByLabel("บันทึกเหตุผล (เห็นเฉพาะผู้ดูแลโรงเรียน)").fill("ตามคำสั่งศาล (ตัวอย่าง)");
+  await shot(fp, "g-custody");
+  await fp.goto("/admin/announce");
+  await fp.getByLabel("หัวข้อ").fill("ฝนตกหนัก");
+  await fp.getByLabel("ข้อความ").fill("รับนักเรียนที่อาคาร A เท่านั้น ขออภัยในความไม่สะดวก");
+  await fp.getByRole("checkbox", { name: /พักการรับนักเรียนทั้งโรงเรียน/ }).check();
+  await shot(fp, "g-announce");
+  await fp.goto("/admin/zones");
+  await shot(fp, "g-zones");
+  await fp.goto("/admin/tv");
+  await shot(fp, "g-tvadmin");
+  await fctx.close();
 
   // ผู้ดูแลโรงเรียน (เดสก์ท็อป): หน้าเพิ่มเติม
   await dctx.clearCookies();
@@ -376,9 +409,12 @@ test("ถ่ายภาพคู่มือฉบับละเอียด",
   // ผู้ดูแลแพลตฟอร์ม
   await dctx.clearCookies();
   await loginUI(g, pa.email, "/platform");
+  await g.locator("aside").getByTestId("school-switcher").getByLabel("เลือกโรงเรียน").selectOption({ label: "โรงเรียนตัวอย่าง" });
+  await g.locator("aside").getByTestId("school-switcher").getByRole("button", { name: "เปลี่ยนโรงเรียน" }).click();
+  await g.waitForURL(/\/admin$/, { timeout: 30_000 });
+  await g.goto("/platform");
+  await mask(g);
   await shot(g, "g-platform");
-  for (const [p, n] of [["/platform/brand", "g-platform-brand"], ["/platform/flags", "g-platform-flags"], ["/platform/rules", "g-platform-rules"], ["/platform/admins", "g-platform-admins"], ["/platform/analytics", "g-platform-analytics"]] as const) { await g.goto(p); await shot(g, n); }
-  await g.goto("/admin/audit");
-  await shot(g, "g-platform-audit");
+  for (const [p, n] of [["/platform/brand", "g-platform-brand"], ["/platform/flags", "g-platform-flags"], ["/platform/rules", "g-platform-rules"], ["/platform/admins", "g-platform-admins"], ["/platform/analytics", "g-platform-analytics"]] as const) { await g.goto(p); await mask(g); await shot(g, n); }
   await dctx.close();
 });

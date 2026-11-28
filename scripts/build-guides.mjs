@@ -3,7 +3,6 @@
 // ใช้ภาพหน้าจอจริงใน docs/guides/shots (ถ่ายด้วย tests/guides/shots.spec.ts — ข้อมูลสมมุติ) ธีมสี/ฟอนต์เดียวกับแอป
 import { icon, md, crop, phone, screen, M, D, header, steps, note, page, PHONE_BADGE, BIG_BADGE, PC_BADGE, html as renderHtml, setDoc, OUT, chromium, writeFileSync, path } from "./guide-kit.mjs";
 
-const TOTAL = 11;
 setDoc({ total: 11, label: "คู่มือฉบับสั้น" });
 const pages = [];
 
