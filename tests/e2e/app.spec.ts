@@ -22,6 +22,16 @@ test.describe("หน้าหลัก", () => {
     });
   }
 
+  test("หน้าแรกไม่มีแบนเนอร์ 'ระบบกำลังอยู่ระหว่างพัฒนา' (ทั้งไทยและอังกฤษ)", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.getByText("ระบบกำลังอยู่ระหว่างพัฒนา")).toHaveCount(0);
+    await expect(page.getByText("ตอนนี้ผู้ปกครองลงทะเบียนและโรงเรียนตั้งค่าได้แล้ว")).toHaveCount(0);
+    await page.context().addCookies([{ name: "kg_lang", value: "en", url: page.url() }]);
+    await page.goto("/");
+    await expect(page.getByText("Under development")).toHaveCount(0);
+  });
+
   test("404 แสดงหน้าอธิบายและลิงก์กลับ", async ({ page }) => {
     const res = await page.goto("/ไม่มีหน้านี้");
     expect(res?.status()).toBe(404);
