@@ -74,10 +74,10 @@ export async function AppShell({ lang, t, children }: { lang: Lang; t: Dict; chi
       </a>
 
       {/* Desktop: sidebar สูงเท่าจอ ติดขอบบน; รายการเมนูเลื่อนเองได้ ปุ่มล่างอยู่กับที่ */}
-      <aside className="sticky top-0 hidden h-dvh w-72 shrink-0 flex-col gap-6 border-e border-line bg-surface p-5 md:flex">
+      <aside className="sticky top-0 hidden h-dvh w-72 shrink-0 flex-col gap-4 overflow-y-auto overscroll-contain border-e border-line bg-surface p-5 md:flex">
         {brandBlock}
-        <SchoolSwitcher schools={switchable} currentId={school?.id ?? null} t={t} idPrefix="side" />
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <SchoolSwitcher schools={switchable} currentId={school?.id ?? null} t={t} idPrefix="side" compact />
+        <div className="min-h-[16rem] flex-1 overflow-y-auto overscroll-contain">
           <SidebarNav items={items} label={t.nav_main} />
         </div>
         <div className="flex flex-col gap-4">

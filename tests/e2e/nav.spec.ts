@@ -113,3 +113,30 @@ test.describe("ตัวสลับโรงเรียน (แอดมิน
     await ctx.close();
   });
 });
+
+test.describe("เมนูข้างของแอดมินแพลตฟอร์มบนจอเตี้ย (เดสก์ท็อป)", () => {
+  test.skip(({ viewport }) => (viewport?.width ?? 0) < 768, "sidebar มีเฉพาะจอใหญ่");
+  for (const h of [800, 640, 520]) {
+    test(`จอสูง ${h}px: รายการเมนูมีพื้นที่ (≥ 200px) เลื่อนถึงเมนูสุดท้ายได้ และเข้าถึงปุ่มออกจากระบบได้`, async ({ page }) => {
+      const a = await makeSchool("sh" + h);
+      const b = await makeSchool("sj" + h);
+      void a; void b;
+      const pa = await makeUser("shpa");
+      await admin().from("platform_admins").insert({ user_id: pa.id, is_owner: false });
+      await page.setViewportSize({ width: 1280, height: h });
+      await loginUI(page, pa.email, "/platform");
+      const side = page.locator("aside");
+      const nav = side.getByRole("navigation").first();
+      const box = await nav.evaluate((el) => (el.parentElement as HTMLElement).clientHeight);
+      expect(box).toBeGreaterThanOrEqual(200);
+      // เลื่อนในรายการเมนูจนสุด → เมนูสุดท้าย (บัญชีของฉัน) ต้องอยู่ในกรอบที่เห็น
+      const last = nav.getByRole("link", { name: "บัญชีของฉัน", exact: true });
+      await last.scrollIntoViewIfNeeded();
+      await expect(last).toBeInViewport();
+      // ท้ายแถบ (ออกจากระบบ) ต้องเข้าถึงได้ด้วยการเลื่อนแถบข้าง
+      const logout = side.getByRole("button", { name: "ออกจากระบบ" });
+      await logout.scrollIntoViewIfNeeded();
+      await expect(logout).toBeInViewport();
+    });
+  }
+});
