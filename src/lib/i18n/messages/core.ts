@@ -26,8 +26,6 @@ export const coreTh = {
   home_title: "ผู้ปกครองกำลังมา ครูเตรียมนักเรียนได้ทัน",
   home_lead:
     "KidGuard ช่วยให้โรงเรียนเห็นลำดับผู้ปกครองที่กำลังจะถึง และให้ผู้ปกครองรู้ว่านักเรียนพร้อมแล้ว โดยไม่ต้องรอกันหน้าประตู",
-  home_status_title: "ระบบกำลังอยู่ระหว่างพัฒนา",
-  home_status_body: "ตอนนี้ผู้ปกครองลงทะเบียนและโรงเรียนตั้งค่าได้แล้ว ส่วนการแจ้งเดินทางมารับและจอคิวจะเปิดในขั้นถัดไป",
   home_cta_signup: "สมัครใช้งาน",
   home_cta_login: "เข้าสู่ระบบ",
   home_cta_continue: "ไปหน้าทำงานของฉัน",
@@ -130,8 +128,6 @@ export const coreEn: { [K in keyof typeof coreTh]: string } = {
   home_title: "Parents are on the way. Teachers are ready in time.",
   home_lead:
     "KidGuard shows the school who is arriving next, and lets parents know their child is ready, without waiting at the gate.",
-  home_status_title: "Under development",
-  home_status_body: "Parents can register and schools can be set up now. Pickup announcements and the live queue open in the next step.",
   home_cta_signup: "Sign up",
   home_cta_login: "Sign in",
   home_cta_continue: "Go to my workspace",

@@ -47,11 +47,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section aria-label={t.home_status_title} className="rounded-2xl border border-line bg-warn-bg p-4 text-warn">
-        <p className="font-semibold">{t.home_status_title}</p>
-        <p className="text-sm">{t.home_status_body}</p>
-      </section>
-
       <ol className="grid gap-4 md:grid-cols-3">
         {steps.map((s, i) => (
           <li key={i} className="rounded-2xl border border-line bg-surface p-5">
