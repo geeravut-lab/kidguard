@@ -13,6 +13,8 @@ import { getMyFingerprint } from "@/lib/live/fingerprint";
 import { LiveSync } from "@/components/live/live-sync";
 import { NotificationBell } from "@/components/notify/notification-bell";
 import { UserCard } from "./user-card";
+import { SchoolSwitcher, type SwitchableSchool } from "./school-switcher";
+import { createClient } from "@/lib/supabase/server";
 import type { Dict, Lang } from "@/lib/i18n/dict";
 import { brandImageUrl } from "@/lib/brand/brand";
 import { loadBrand } from "@/lib/brand/server";
@@ -37,6 +39,16 @@ export async function AppShell({ lang, t, children }: { lang: Lang; t: Dict; chi
   const off = disabledNavHrefs(nav, flags);
   const items: NavEntry[] = nav.map((i) => ({ href: i.href, label: t[i.labelKey], icon: i.icon, disabled: off.has(i.href) }));
   const name = lang === "th" ? brand.name_th : brand.name_en;
+  // ตัวสลับโรงเรียน: แอดมินแพลตฟอร์ม = ทุกโรงเรียนที่เปิดใช้; เจ้าหน้าที่ที่อยู่หลายโรงเรียน = โรงเรียนของตน (การเลือกถูกตรวจซ้ำที่ server ใน selectSchoolAction)
+  const label = (s: { name_th: string; name_en: string | null }) => (lang === "en" && s.name_en ? s.name_en : s.name_th);
+  let switchable: SwitchableSchool[] = [];
+  if (me?.platform_admin) {
+    const { data } = await (await createClient()).from("schools").select("id,name_th,name_en").eq("active", true).order("created_at");
+    switchable = (data ?? []).map((s) => ({ id: s.id, name: label(s) }));
+  } else if (me && new Set(me.memberships.map((m) => m.school_id)).size > 1) {
+    const seen = new Set<string>();
+    for (const m of me.memberships) if (!seen.has(m.school_id)) { seen.add(m.school_id); switchable.push({ id: m.school_id, name: label(m) }); }
+  }
   const schoolLabel = school ? (lang === "en" && school.name_en ? school.name_en : school.name_th) : t.school_default_name;
   // โลโก้โรงเรียน (ถ้ามี) แทนโลโก้แพลตฟอร์มของหัวเมนู; ?v= = เห็นรูปใหม่ทันทีที่เปลี่ยน
   const logoSrc = school?.logo ? brandImageUrl(`/brand/school/${school.id}`, school.logo) : brandImageUrl("/brand/logo", brand.logo);
@@ -64,6 +76,7 @@ export async function AppShell({ lang, t, children }: { lang: Lang; t: Dict; chi
       {/* Desktop: sidebar สูงเท่าจอ ติดขอบบน; รายการเมนูเลื่อนเองได้ ปุ่มล่างอยู่กับที่ */}
       <aside className="sticky top-0 hidden h-dvh w-72 shrink-0 flex-col gap-6 border-e border-line bg-surface p-5 md:flex">
         {brandBlock}
+        <SchoolSwitcher schools={switchable} currentId={school?.id ?? null} t={t} idPrefix="side" />
         <div className="min-h-0 flex-1 overflow-y-auto">
           <SidebarNav items={items} label={t.nav_main} />
         </div>
@@ -93,6 +106,7 @@ export async function AppShell({ lang, t, children }: { lang: Lang; t: Dict; chi
         navLabel={t.nav_main}
         sheet={
           <div className="flex flex-col gap-5">
+            <SchoolSwitcher schools={switchable} currentId={school?.id ?? null} t={t} idPrefix="sheet" />
             <UserCard me={me} t={t} />
             <InstallApp />
             <LangSwitch lang={lang} t={t} />

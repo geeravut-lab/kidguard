@@ -40,7 +40,7 @@ export default async function PlatformPage() {
               <div className="flex gap-2">
                 <AsyncForm action={selectSchoolAction}>
                   <input type="hidden" name="school" value={s.id} />
-                  <SubmitButton size="sm">{t.nav_admin_settings}</SubmitButton>
+                  <SubmitButton size="sm">{t.platform_manage_school}</SubmitButton>
                 </AsyncForm>
                 <AsyncForm action={setSchoolActiveAction}>
                   <input type="hidden" name="id" value={s.id} />
