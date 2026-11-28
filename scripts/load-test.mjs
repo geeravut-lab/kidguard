@@ -8,6 +8,7 @@ import { randomBytes } from "node:crypto";
 const arg = (k, d) => { const i = process.argv.indexOf(`--${k}`); return i > 0 ? process.argv[i + 1] : d; };
 const N = Number(arg("users", 150));
 const ROUNDS = Number(arg("rounds", 6));
+const PACED = Number(arg("paced", 0)); // >0 = กระจายคำขอแบบสมจริง: ผู้ปกครองแต่ละคนอัปเดตทุก N วินาทีในเวลาสุ่ม (ไม่ยิงพร้อมกัน)
 const BASE = arg("base", "https://kidguards.vercel.app").replace(/\/+$/, "");
 const URL_ = process.env.NEXT_PUBLIC_SUPABASE_URL, ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!URL_ || !ANON || !SERVICE) throw new Error("ต้องมีคีย์ Supabase ใน env");
@@ -100,6 +101,16 @@ try {
   const sessOf = new Map(sess.map((s) => [s.parent_user_id, s.id]));
   console.log(`   session ที่เปิดอยู่ ${sess.length}/${N}`);
   const upd = [], fp = [], gate = [], live = [];
+  if (PACED > 0) {
+    console.log(`   โหมดกระจายเวลา: ทุกคนอัปเดตทุก ${PACED} วินาที (เวลาสุ่ม) + ถามสถานะทุก ${PACED * 2} วินาที + เจ้าหน้าที่รีเฟรชจอทุก 5 วินาที · ${ROUNDS} รอบ ≈ ${ROUNDS * PACED} วินาที`);
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const end = Date.now() + ROUNDS * PACED * 1000;
+    await Promise.all([
+      ...users.map(async (u) => { await sleep(Math.random() * PACED * 1000); let k = 0; while (Date.now() < end) { upd.push(await req("/api/pickup/update", cookies[u.i], { method: "POST", body: JSON.stringify({ session_id: sessOf.get(u.id), ...pos(Math.max(0.1, 1.2 - (k++ * 0.05) + (u.i % 10) / 40)) }) })); await sleep(PACED * 1000); } }),
+      ...users.map(async (u) => { await sleep(Math.random() * PACED * 2000); while (Date.now() < end) { fp.push(await req("/api/live?scope=me", cookies[u.i])); await sleep(PACED * 2000); } }),
+      ...staff.map(async (u, i) => { while (Date.now() < end) { gate.push(await req("/gate", staffCookies[i])); live.push(await req(`/api/live?scope=school&id=${school}`, staffCookies[i])); await sleep(5000); } }),
+    ]);
+  } else
   for (let r = 1; r <= ROUNDS; r++) {
     const [a, b, c] = await Promise.all([
       pool(users, N, (u) => req("/api/pickup/update", cookies[u.i], { method: "POST", body: JSON.stringify({ session_id: sessOf.get(u.id), ...pos(Math.max(0.1, 1.2 - r * 0.18 + (u.i % 10) / 40)) }) })),
