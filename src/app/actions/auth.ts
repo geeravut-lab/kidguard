@@ -9,6 +9,7 @@ import { audit } from "@/lib/audit/server";
 import { safeNext } from "@/lib/auth/next";
 import { getAuthInfo } from "@/lib/auth/me";
 import { publicEnv } from "@/lib/env";
+import { allow, clientIp, hashKey } from "@/lib/ratelimit";
 import { createClient } from "@/lib/supabase/server";
 import { emailSchema, nameSchema, passwordSchema, str } from "@/lib/validation";
 
@@ -27,6 +28,7 @@ export async function signUpAction(_prev: ActionState, fd: FormData): Promise<Ac
     const bad = parsed.error.issues[0]?.path[0];
     return fail(bad === "email" ? "err_invalid_email" : bad === "password" ? "err_weak_password" : "err_name_required");
   }
+  if (!(await allow(`signup:${await clientIp()}`, 10, 3600))) return fail("err_rate_limited");
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
@@ -50,6 +52,8 @@ export async function signUpAction(_prev: ActionState, fd: FormData): Promise<Ac
 export async function signInAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
   const parsed = z.object({ email: emailSchema, password: z.string().min(1).max(72) }).safeParse({ email: str(fd, "email"), password: str(fd, "password") });
   if (!parsed.success) return fail("err_login_failed");
+  // กันเดารหัสผ่าน: ต่อ IP และต่ออีเมล (เก็บเฉพาะ hash) — ผู้ใช้ปกติไม่มีทางถึงเพดานนี้
+  if (!(await allow(`login:ip:${await clientIp()}`, 30, 600)) || !(await allow(`login:em:${hashKey(parsed.data.email)}`, 10, 600))) return fail("err_rate_limited");
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error || !data.user) {
@@ -72,6 +76,7 @@ export async function signOutAction(): Promise<void> {
 export async function forgotPasswordAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
   const parsed = emailSchema.safeParse(str(fd, "email"));
   if (!parsed.success) return fail("err_invalid_email");
+  if (!(await allow(`forgot:ip:${await clientIp()}`, 10, 3600)) || !(await allow(`forgot:em:${hashKey(parsed.data)}`, 3, 3600))) return fail("err_rate_limited");
   const supabase = await createClient();
   const origin = await siteOrigin();
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, { redirectTo: `${origin}/auth/callback?next=/reset-password` });

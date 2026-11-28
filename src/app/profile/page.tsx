@@ -7,6 +7,7 @@ import { getT } from "@/lib/i18n/server";
 import { loadParentData } from "@/lib/parent-data";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/parent/sections";
+import { MyDataCard } from "@/components/parent/my-data";
 import { LineCard, type LineChannelRow } from "@/components/notify/line-card";
 
 export const metadata = { title: "บัญชีของฉัน", robots: { index: false } };
@@ -35,6 +36,9 @@ export default async function ProfilePage() {
         </>
       )}
       <Card title={t.pw_title}>{info?.hasPassword ? <ChangePasswordForm /> : <p className="text-sm text-ink-soft">{t.pw_oauth_only}</p>}</Card>
+      <Card title={t.mydata_title} lead={t.mydata_lead}>
+        <MyDataCard hasPassword={!!info?.hasPassword} />
+      </Card>
     </div>
   );
 }

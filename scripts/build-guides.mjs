@@ -54,7 +54,8 @@ const D = (y, h, x = 470, w = 1450) => ({ x, y, w, h });
 
 // ---------- หน้ากระดาษ ----------
 const TOTAL = 11;
-const footer = (n) => `<footer><span>โรงเรียน: ______________________________</span><span>KidGuard · คู่มือฉบับสั้น · ${n}/${TOTAL}</span></footer>`;
+let DOC = { total: 11, label: "คู่มือฉบับสั้น" };
+const footer = (n) => `<footer><span>โรงเรียน: ______________________________</span><span>KidGuard · ${DOC.label} · ${n}/${DOC.total}</span></footer>`;
 const header = ({ ic, title, sub, badge, badge2 }) => `
 <header class="band">
   <div class="band-ic">${icon(ic, 34, "#0b6e8a", 2.2)}</div>
@@ -359,17 +360,76 @@ footer{display:flex;justify-content:space-between;padding:12px 36px 18px;font-si
 .notes div{display:flex;gap:9px;align-items:center}.notes b{color:var(--ps)}
 `;
 
-const html = `<!doctype html><html lang="th"><head><meta charset="utf-8"><title>KidGuard — คู่มือฉบับสั้น</title><style>${CSS}</style></head><body>${pages.join("")}</body></html>`;
+const wrapHtml = (title, list) => `<!doctype html><html lang="th"><head><meta charset="utf-8"><title>${title}</title><style>${CSS}</style></head><body>${list.join("")}</body></html>`;
+
+// ===== เอกสารที่ 2: คู่มือฝึกอบรมครู/เจ้าหน้าที่ (เฟส 7) =====
+DOC = { total: 4, label: "คู่มือฝึกอบรมครูและเจ้าหน้าที่" };
+const trainPages = [];
+const table = (head, rows) => `<table class="tb"><thead><tr>${head.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${md(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+trainPages.push(
+  page(1, header({ ic: "Presentation", title: "แผนการอบรมครูและเจ้าหน้าที่ (60 นาที)", sub: "ก่อนเริ่มนำร่อง 1–2 ห้อง · ผู้เข้าอบรม: ครูประจำชั้น เจ้าหน้าที่ประตู ผู้ดูแลโรงเรียน", badge: "ฝึกอบรม" }),
+    `<div class="devices"><div class="dev">${icon("Users", 28, "#0b6e8a")}<div><b>ผู้เข้าอบรม</b><span>ครูประจำชั้นห้องนำร่อง · เจ้าหน้าที่ประตู · ผู้ดูแลโรงเรียน (รอบละไม่เกิน 15 คน)</span></div></div>
+     <div class="dev">${icon("ClipboardCheck", 28, "#0b6e8a")}<div><b>เตรียมก่อนอบรม</b><span>มือถือคนละเครื่อง · จอใหญ่ที่ประตู · บัญชีฝึก (ผู้ดูแลสร้างลิงก์เชิญไว้แล้ว)</span></div></div></div>` +
+    table(["เวลา", "หัวข้อ", "ทำอะไร", "ผู้สอน"], [
+      ["0–10 น.", "ภาพรวมและเหตุผล", "ดูหน้า “Flow ขั้นตอนการรับนักเรียน” อธิบายว่าระบบช่วยจัดคิว **ไม่ใช่การยืนยันตัวตน** ด่านสุดท้ายคือคนที่ประตู", "ผู้ดูแล"],
+      ["10–25 น.", "ครูประจำชั้น (มือถือ)", "เข้าสู่ระบบ → ห้องของฉัน → ดูคิวของห้อง → **เรียกนักเรียน / ส่งนักเรียนแล้ว** → อนุมัติคำขอผูกนักเรียน", "ผู้ดูแล"],
+      ["25–45 น.", "เจ้าหน้าที่ประตู (จอใหญ่)", "จอประตู → ยืนยันตัว → เรียก → ส่ง · **ตรวจรหัสผู้รับแทน** · ป้าย **ห้ามปล่อย** · ช่วง **พักการรับ** · เปิดเสียงเรียก", "ผู้ดูแล"],
+      ["45–55 น.", "ฝึกสถานการณ์ (หน้า 2)", "แบ่งกลุ่มเล่นบทบาท ผู้ปกครอง / ครู / เจ้าหน้าที่ประตู ด้วยบัญชีฝึก", "ทุกคน"],
+      ["55–60 น.", "ถามตอบและแจกคู่มือ", "แจกคู่มือฉบับสั้นและหน้า “แก้ปัญหาที่ประตู” (หน้า 3) ติดไว้ที่ประตู", "ผู้ดูแล"],
+    ]) +
+    `<div class="note"><span class="note-ic">${icon("Target", 20, "#0b6e8a")}</span><div><b>เป้าหมายหลังอบรม:</b> ทุกคนทำได้เองโดยไม่ต้องถาม — (1) เรียก/ส่งนักเรียนถูกคน (2) ตรวจรหัสผู้รับแทนและบัตรประจำตัว (3) รู้ว่าเห็น **ห้ามปล่อย** หรือ **พักการรับ** แล้วต้องหยุดและติดต่อผู้ดูแล (4) บอกผู้ปกครองได้ว่าต้องเปิดหน้าจอค้างไว้และเปิด GPS</div></div>
+     <div class="panel"><div class="panel-h">หลักที่ต้องย้ำทุกรอบ</div><ul class="bul">
+       <li>ระบบบอก **ใกล้ถึงเมื่อไร** ไม่ได้บอกว่า **ใครคือผู้รับ** — ตรวจชื่อ/ทะเบียน/บัตรทุกครั้ง</li>
+       <li>เห็นป้าย **ห้ามปล่อย** → ไม่ส่งนักเรียน ไม่ต้องถามเหตุผล แจ้งผู้ดูแลโรงเรียนทันที</li>
+       <li>ผู้ปกครองกด “รับนักเรียนแล้ว” ก่อน ไม่ได้แปลว่าเด็กถึงรถแล้ว — ยืนยันที่หน้างานเสมอ</li>
+       <li>ห้ามถ่ายภาพหน้าจอคิว (มีชื่อเด็ก) ไปเผยแพร่ · ห้ามแชร์บัญชี</li></ul></div>`),
+  page(2, header({ ic: "Drama", title: "สถานการณ์ฝึก (เล่นบทบาท)", sub: "ใช้บัญชีฝึก 3 บทบาท · กลุ่มละ 3 คน · ใช้เวลาสถานการณ์ละ ~3 นาที", badge: "ฝึกอบรม" }),
+    table(["#", "สถานการณ์", "ผู้ปกครองทำ", "ครู/เจ้าหน้าที่ทำ", "ผ่านเมื่อ"], [
+      ["1", "รับตามปกติ", "กด “ฉันกำลังไปรับ” แล้วเดินเข้าใกล้โรงเรียน", "ดูแถวในคิว ยืนยันตัว เรียก ส่ง", "ผู้ปกครองได้แจ้ง “ส่งนักเรียนแล้ว”"],
+      ["2", "พี่น้องคนละห้อง", "เลือกนักเรียน 2 คนต่างห้อง", "ครูแต่ละห้อง **เรียก** เฉพาะเด็กห้องตัวเอง", "คิวเป็นแถวเดียว ไม่มีใครปล่อยเด็กห้องอื่น"],
+      ["3", "ผู้รับแทน", "สร้างรหัสให้ “คุณลุง” ส่งรหัสให้เพื่อน", "ใส่รหัสที่ประตู ตรวจชื่อ/บัตร กดยืนยัน", "ใช้ซ้ำไม่ได้ ผู้ปกครองได้แจ้ง"],
+      ["4", "ธงห้ามปล่อย", "—", "ผู้ดูแลติดธงให้เด็กหนึ่งคน → ประตูลองส่งเด็กคนนั้น", "ปุ่มส่งถูกปิด/ระบบปฏิเสธ แจ้งผู้ดูแล"],
+      ["5", "พักการรับฉุกเฉิน", "ลองแจ้งมารับใหม่", "ผู้ดูแลส่งประกาศ + พักการรับ → ลองเรียก/ส่ง → เปิดรับอีกครั้ง", "ทุกจอเห็นแบนเนอร์ ปุ่มกลับมาใช้ได้หลังเปิดรับ"],
+      ["6", "GPS ไม่ทำงาน", "กด “ฉันถึงประตูแล้ว”", "เห็นป้าย “แจ้งถึงเอง” → **ยืนยันตัวที่ประตู** ก่อนเรียก", "เจ้าหน้าที่ไม่ส่งเด็กจนกว่าตรวจตัวผู้รับแล้ว"],
+      ["7", "ผู้ปกครองกดรับก่อน", "กด “รับนักเรียนแล้ว”", "แถวหายจากจอ ครูได้แจ้ง — **ตรวจที่หน้างานว่าเด็กไปกับใคร**", "ครู/เจ้าหน้าที่ไม่ปล่อยซ้ำและยืนยันกับผู้ปกครองได้"],
+    ]) +
+    `<div class="note"><span class="note-ic">${icon("ListChecks", 20, "#0b6e8a")}</span><div>ผู้สอนสังเกตว่าแต่ละกลุ่ม **หยุดและแจ้งผู้ดูแล** ในสถานการณ์ 4 และ 5 หรือไม่ — เป็นหัวใจความปลอดภัยของระบบ</div></div>`),
+  page(3, header({ ic: "LifeBuoy", title: "แก้ปัญหาที่ประตู (ติดไว้ข้างจอ)", sub: "อาการที่พบบ่อย สาเหตุ และสิ่งที่ต้องทำ", badge: BIG_BADGE }),
+    table(["อาการ", "น่าจะเกิดจาก", "ทำอย่างนี้"], [
+      ["ไม่เห็นผู้ปกครองในคิว", "ผู้ปกครองยังไม่กดแจ้ง · ยังไม่ผ่านอนุมัติ · แจ้งหมดอายุ · อยู่นอกระยะ", "ให้ผู้ปกครองเปิดหน้า **รับนักเรียน** ดูข้อความ · ตรวจ “คำขอผูกนักเรียน” ว่าอนุมัติแล้วหรือยัง"],
+      ["จอคิวขึ้น “กำลังเชื่อมต่อ” นาน", "อินเทอร์เน็ตหรือ Realtime ขัดข้อง", "รอสักครู่ ระบบจะถามซ้ำเอง (ไม่เกิน ~5 วินาที) · ถ้าไม่หายให้รีเฟรชหน้า · ตรวจ Wi-Fi"],
+      ["กด “ส่งนักเรียนแล้ว” ไม่ได้", "ป้าย **ห้ามปล่อย** หรือกำลัง **พักการรับ**", "**อย่าฝืน** — แจ้งผู้ดูแลโรงเรียนทันที (เหตุผลเห็นเฉพาะผู้ดูแล)"],
+      ["รหัสผู้รับแทนใช้ไม่ได้", "ใช้ไปแล้ว · หมดอายุ · ถูกยกเลิก · พิมพ์ผิด", "ให้ผู้ปกครองสร้างรหัสใหม่ · ถ้าไม่แน่ใจตัวผู้รับ ให้โทรหาผู้ปกครองตามเบอร์ในระบบก่อน"],
+      ["ผู้ปกครองบอกไม่ได้รับแจ้ง", "ยังไม่ผูก LINE · ปิดการแจ้งเตือนของ LINE", "แจ้งเตือนในแอป (กระดิ่ง) ใช้ได้เสมอ · แนะนำให้ผูก LINE ที่ **บัญชีของฉัน**"],
+      ["เสียงเรียกไม่ดัง", "ยังไม่ได้แตะ “เปิดเสียงเรียก” · ปิดเสียงเครื่อง · ไม่มีเสียงไทย", "แตะปุ่มเปิดเสียงหนึ่งครั้ง · ตรวจระดับเสียงเครื่อง · ถ้าไม่ได้ ใช้ชื่อบนจอแทน"],
+      ["ตำแหน่งผู้ปกครองดูเก่า (ป้าย “ไม่อัปเดต”)", "ปิดหน้าจอ/พับแอป · ไม่มีสัญญาณ", "ให้ผู้ปกครองเปิดหน้าจอค้างไว้ · หรือกด “ฉันถึงประตูแล้ว”"],
+      ["ผู้ปกครองสมัครแล้วเข้าไม่ได้/ยังไม่เห็นลูก", "รออนุมัติ · ชื่อที่พิมพ์ไม่ตรงรายชื่อ", "ผู้ดูแล/ครูประจำชั้นเปิด **คำขอผูกนักเรียน** เลือกนักเรียนที่ตรงกันแล้วอนุมัติ"],
+    ]) +
+    `<div class="note"><span class="note-ic">${icon("Phone", 20, "#0b6e8a")}</span><div><b>ติดต่อฉุกเฉิน:</b> ผู้ดูแลระบบของโรงเรียน ______________________ โทร ______________ · ผู้ดูแลแพลตฟอร์ม ______________________ โทร ______________</div></div>`),
+  page(4, header({ ic: "ClipboardCheck", title: "Checklist นำร่อง และแบบบันทึกการอบรม", sub: "ใช้ก่อนเปิดห้องนำร่อง และบันทึกผู้ผ่านการอบรม", badge: "ฝึกอบรม" }),
+    `<div class="cols2"><div class="panel"><div class="panel-h">ก่อนเปิดห้องนำร่อง (ผู้ดูแลติ๊ก)</div><ul class="chk">
+      <li>ตั้งพิกัดโรงเรียน/ระยะ check-in/เวลาเลิกเรียนแล้ว</li><li>สร้างห้อง นำเข้านักเรียน ผูกครูประจำชั้นห้องนำร่องแล้ว</li><li>เชิญเจ้าหน้าที่ประตู (ลิงก์ใช้ได้ครั้งเดียว) แล้ว</li><li>ผู้ปกครองห้องนำร่องสมัครและได้รับอนุมัติแล้ว</li><li>ตั้งค่า LINE OA และทดสอบส่งการ์ดถึงมือถือจริงแล้ว</li><li>ทดสอบบนมือถือ iPhone และ Android อย่างน้อยอย่างละ 1 เครื่อง</li><li>ตั้งค่า GOOGLE_ROUTES_API_KEY และเพดานค่าใช้จ่ายแล้ว</li><li>ลบข้อมูลตัวอย่าง/บัญชีทดสอบทั้งหมดแล้ว</li><li>แจ้งผู้ปกครองห้องนำร่องล่วงหน้า (วิธีใช้ + ข้อมูลที่เก็บ)</li><li>ติดหน้า “แก้ปัญหาที่ประตู” ข้างจอแล้ว</li></ul></div>
+     <div class="panel"><div class="panel-h">วันนำร่อง (เจ้าหน้าที่ติ๊กท้ายวัน)</div><ul class="chk">
+      <li>มีผู้ปกครองใช้ระบบกี่คน: ______ คน</li><li>รับสำเร็จกี่ครั้ง: ______ ครั้ง</li><li>ปัญหาที่พบ: ______________________</li><li>ครั้งที่ต้องใช้วิธีเดิมแทนระบบ: ______ ครั้ง</li><li>เวลารอที่ประตูเฉลี่ย: ______ นาที (ดูที่หน้า สถิติ)</li><li>ข้อเสนอแนะจากครู/ผู้ปกครอง: __________</li><li>ตัดสินใจ: ขยายเพิ่ม □ แก้แล้วทดลองต่อ □ หยุดชั่วคราว □</li></ul></div></div>` +
+    table(["ชื่อผู้เข้าอบรม", "บทบาท", "วันที่", "ทำสถานการณ์ 4–5 ผ่าน", "ลายมือชื่อ"], [["", "", "", "□", ""], ["", "", "", "□", ""], ["", "", "", "□", ""], ["", "", "", "□", ""], ["", "", "", "□", ""]])),
+);
+
+const CSS2 = `.tb{width:100%;border-collapse:collapse;font-size:12.6px;line-height:1.45}.tb th{background:var(--p);color:#fff;text-align:left;padding:7px 9px;font-weight:700}.tb td{border:1px solid var(--line);padding:7px 9px;vertical-align:top}.tb tr:nth-child(even) td{background:#f7fbfc}.tb b{color:var(--ps)}.bul,.chk{list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:1.45}.bul li::before{content:"•";color:var(--p);font-weight:800;margin-right:7px}.chk li::before{content:"☐";color:var(--p);margin-right:8px;font-size:15px}.cols2{display:grid;grid-template-columns:1fr 1fr;gap:12px}`;
+const html = wrapHtml("KidGuard — คู่มือฉบับสั้น", pages).replace("</style>", CSS2 + "</style>");
+const html2 = wrapHtml("KidGuard — คู่มือฝึกอบรมครูและเจ้าหน้าที่", trainPages).replace("</style>", CSS2 + "</style>");
 writeFileSync(path.join(OUT, "kidguard-quick-guide.html"), html);
+writeFileSync(path.join(OUT, "kidguard-training.html"), html2);
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 794, height: 1123 }, deviceScaleFactor: 2 });
 const pg = await ctx.newPage();
-await pg.setContent(html, { waitUntil: "load" });
-await pg.evaluate(() => document.fonts.ready);
-await pg.pdf({ path: path.join(OUT, "KidGuard-QuickGuide.pdf"), width: "210mm", height: "297mm", printBackground: true, preferCSSPageSize: true });
 const names = ["overview", "parent-1-start", "parent-2-pickup", "parent-3-proxy-and-plan", "parent-4-line-and-install", "teacher", "student", "gate-queue-bigscreen", "admin-1-settings", "admin-2-classes-and-approvals", "admin-3-safety"];
-const els = await pg.$$(".page");
-for (let i = 0; i < els.length; i++) await els[i].screenshot({ path: path.join(OUT, "png", `${String(i + 1).padStart(2, "0")}-${names[i]}.png`) });
+for (const [doc, file, prefix, list] of [[html, "KidGuard-QuickGuide.pdf", "", names], [html2, "KidGuard-Training-Handbook.pdf", "training-", ["agenda", "scenarios", "troubleshooting", "checklist"]]]) {
+  await pg.setContent(doc, { waitUntil: "load" });
+  await pg.evaluate(() => document.fonts.ready);
+  await pg.pdf({ path: path.join(OUT, file), width: "210mm", height: "297mm", printBackground: true, preferCSSPageSize: true });
+  const els = await pg.$$(".page");
+  for (let i = 0; i < els.length; i++) await els[i].screenshot({ path: path.join(OUT, "png", `${prefix}${String(i + 1).padStart(2, "0")}-${list[i]}.png`) });
+  console.log("เสร็จ:", file, els.length, "หน้า");
+}
 await browser.close();
-console.log("เสร็จ:", els.length, "หน้า");

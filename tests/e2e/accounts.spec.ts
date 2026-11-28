@@ -103,7 +103,7 @@ test.describe("ผู้ปกครอง: สมัคร → ลงทะเ�
     await page.getByLabel("อีเมล").fill(u.email);
     await page.getByLabel("รหัสผ่าน", { exact: true }).fill(PASSWORD);
     await page.getByRole("button", { name: "เข้าสู่ระบบ", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "บัญชีของฉัน" })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("heading", { name: "บัญชีของฉัน", exact: true })).toBeVisible({ timeout: 20_000 });
     await page.context().clearCookies();
     await page.goto("/login?next=https://evil.example/");
     await page.getByLabel("อีเมล").fill(u.email);
@@ -253,14 +253,14 @@ test.describe("เมนูตามบทบาท + บัญชี + ออ�
     const mobile = isMobile(info.project.name);
     const u = await makeUser("pw");
     await loginUI(page, u.email, "/profile");
-    await page.getByLabel("รหัสผ่านปัจจุบัน").fill("wrong-current-1");
+    await page.getByLabel("รหัสผ่านปัจจุบัน", { exact: true }).fill("wrong-current-1");
     await page.getByLabel("รหัสผ่านใหม่", { exact: true }).fill("New-pass-98765");
     await page.getByLabel("ยืนยันรหัสผ่านใหม่").fill("New-pass-98765");
     await page.getByRole("button", { name: "เปลี่ยนรหัสผ่าน", exact: true }).click();
     await expect(page.locator('main [role="alert"]')).toContainText("รหัสผ่านปัจจุบันไม่ถูกต้อง");
     // ช่องรหัสผ่านถูกล้างหลังผิดพลาด (ไม่คืนค่ารหัสผ่านโดยตั้งใจ) → กรอกใหม่ทั้งสามช่อง
     await expect(page.getByLabel("รหัสผ่านใหม่", { exact: true })).toHaveValue("");
-    await page.getByLabel("รหัสผ่านปัจจุบัน").fill(PASSWORD);
+    await page.getByLabel("รหัสผ่านปัจจุบัน", { exact: true }).fill(PASSWORD);
     await page.getByLabel("รหัสผ่านใหม่", { exact: true }).fill("New-pass-98765");
     await page.getByLabel("ยืนยันรหัสผ่านใหม่").fill("New-pass-98765");
     await page.getByRole("button", { name: "เปลี่ยนรหัสผ่าน", exact: true }).click();
@@ -282,7 +282,7 @@ test.describe("เมนูตามบทบาท + บัญชี + ออ�
     await loginUI(page, u.email, "/profile");
     const sw = mobile ? page.locator('[role="group"][aria-label="เปลี่ยนภาษา"]:visible').first() : page.locator('[role="group"][aria-label="เปลี่ยนภาษา"]:visible').first();
     await sw.getByRole("button", { name: "English" }).click();
-    await expect(page.getByRole("heading", { name: "My account" })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("heading", { name: "My account", exact: true })).toBeVisible({ timeout: 15_000 });
     expect((await admin().from("profiles").select("lang").eq("id", u.id).single()).data?.lang).toBe("en");
   });
 

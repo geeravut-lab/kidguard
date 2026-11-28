@@ -29,6 +29,10 @@ export async function AppShell({ lang, t, children }: { lang: Lang; t: Dict; chi
   if (me) after(() => trackEvent("active", me.user_id)); // วันละครั้งต่อคน ไม่หน่วงหน้า
   const [flags, brand, school] = await Promise.all([getFlags(), loadBrand(), getShellSchool(me)]);
   const notice = await getSchoolNotice(school?.id);
+  // โควตาการเชื่อมต่อ Realtime มีจำกัด (ตรวจเฟส 7: แผน Supabase ปัจจุบัน 200 ผู้ใช้พร้อมกัน): เปิด socket เฉพาะคนที่ต้องเห็นสด —
+  // เจ้าหน้าที่ นักเรียน และผู้ปกครองที่กำลังแจ้งมารับ; ผู้ปกครองที่ว่างอยู่ใช้การถามลายนิ้วมือทุก ≤ 60 วินาที (แจ้งเตือนใหม่ก็อยู่ในลายนิ้วมือ)
+  const activeSession = /:(on_the_way|arrived):/.test((fp ?? "").split("/")[0] ?? "");
+  const wantsSocket = !!me && (me.memberships.length > 0 || me.platform_admin || (me.students?.length ?? 0) > 0 || activeSession);
   const nav = navFor(me);
   const off = disabledNavHrefs(nav, flags);
   const items: NavEntry[] = nav.map((i) => ({ href: i.href, label: t[i.labelKey], icon: i.icon, disabled: off.has(i.href) }));
@@ -81,7 +85,7 @@ export async function AppShell({ lang, t, children }: { lang: Lang; t: Dict; chi
         </main>
       </div>
 
-      {me && <LiveSync quiet topics={[`u:${me.user_id}`]} fingerprintUrl="/api/live?scope=me" initial={fp} />}
+      {me && <LiveSync quiet topics={wantsSocket ? [`u:${me.user_id}`] : []} fallbackMs={30_000} fingerprintUrl="/api/live?scope=me" initial={fp} />}
       <BottomBar
         items={items}
         moreLabel={t.nav_more}

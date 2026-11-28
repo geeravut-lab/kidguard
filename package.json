@@ -17,7 +17,11 @@
     "icons": "node scripts/gen-icons.mjs",
     "db:migrate": "node scripts/migrate.mjs",
     "guides:shots": "playwright test -c playwright.guides.config.ts",
-    "guides:build": "node scripts/build-guides.mjs"
+    "guides:build": "node scripts/build-guides.mjs",
+    "demo:seed": "node scripts/demo-data.mjs --seed",
+    "demo:remove": "node scripts/demo-data.mjs --remove",
+    "demo:simulate": "playwright test -c playwright.demo.config.ts",
+    "load:test": "node scripts/load-test.mjs"
   },
   "dependencies": {
     "@fontsource-variable/noto-sans-thai": "5.3.0",

@@ -20,5 +20,5 @@ export default defineConfig({
   ],
   webServer: process.env.E2E_BASE_URL
     ? undefined
-    : { command: `pnpm exec next start -p ${PORT}`, port: PORT, reuseExistingServer: true, timeout: 60_000, env: { ...(process.env as Record<string, string>), LINE_API_BASE: "http://127.0.0.1:9" } },
+    : { command: `pnpm exec next start -p ${PORT}`, port: PORT, reuseExistingServer: true, timeout: 60_000, env: { ...(process.env as Record<string, string>), LINE_API_BASE: "http://127.0.0.1:9", KG_RL_IGNORE_IP: "1" } },
 });

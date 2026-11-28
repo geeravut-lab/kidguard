@@ -6,6 +6,7 @@ import { fail, mapDbError, type ActionState } from "@/lib/action";
 import { audit } from "@/lib/audit/server";
 import { getAuthInfo, getMe, postLoginPath } from "@/lib/auth/me";
 import { INVITE_CODE_RE } from "@/lib/invites";
+import { allow } from "@/lib/ratelimit";
 import { createClient } from "@/lib/supabase/server";
 import { str } from "@/lib/validation";
 
@@ -14,6 +15,7 @@ export async function redeemInviteAction(_prev: ActionState, fd: FormData): Prom
   if (!info) return fail("err_forbidden");
   const code = str(fd, "code");
   if (!INVITE_CODE_RE.test(code)) return fail("err_invalid_invite");
+  if (!(await allow(`invite:${info.id}`, 10, 600))) return fail("err_rate_limited"); // กันเดารหัสเชิญ
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("redeem_invite", { p_code: code });
   if (error) return fail(mapDbError(error));

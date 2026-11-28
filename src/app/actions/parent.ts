@@ -1,6 +1,7 @@
 "use server";
 
 import { trackEvent } from "@/lib/analytics/server";
+import { allow } from "@/lib/ratelimit";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -93,6 +94,7 @@ export async function claimStudentAction(_prev: ActionState, fd: FormData): Prom
     .safeParse({ school: str(fd, "school"), classroom: str(fd, "classroom"), name: str(fd, "name") });
   if (!parsed.success) return fail("err_invalid_input");
   const rel = relationSchema.safeParse(str(fd, "relation"));
+  if (!(await allow(`claim:${c.info.id}`, 20, 3600))) return fail("err_rate_limited"); // กันส่งคำขอเดาชื่อนักเรียนถี่ ๆ
   const { data, error } = await c.supabase.rpc("claim_student", {
     p_school: parsed.data.school,
     p_classroom: parsed.data.classroom,

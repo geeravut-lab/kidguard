@@ -1,24 +1,6 @@
 import type { NextConfig } from "next";
 
-const isDev = process.env.NODE_ENV !== "production";
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const supabaseHost = supabaseUrl ? new URL(supabaseUrl).host : "";
-
-// CSP: ตรวจเฟส 7 อีกครั้ง (เปลี่ยน 'unsafe-inline' เป็น nonce)
-const csp = [
-  "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://tile.openstreetmap.org" + (supabaseHost ? ` https://${supabaseHost}` : ""),
-  "font-src 'self' data:",
-  `connect-src 'self'${supabaseHost ? ` https://${supabaseHost} wss://${supabaseHost}` : ""}`,
-  "worker-src 'self'",
-  "manifest-src 'self'",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-].join("; ");
+// CSP อยู่ที่ src/proxy.ts (nonce ต่อคำขอ) — ที่นี่เหลือหัวความปลอดภัยที่ไม่ขึ้นกับคำขอ
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
@@ -29,9 +11,10 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*",
         headers: [
-          { key: "Content-Security-Policy", value: csp },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "DENY" },
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+          { key: "X-DNS-Prefetch-Control", value: "off" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=(self)" },
           { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
