@@ -77,7 +77,7 @@ d("แกนหลัก check-in → คิว → check-out (ฐานข้�
       await set("22:00", "06:00");
       const bkk = hhmm(0);
       const inside = bkk >= "22:00" || bkk <= "06:00";
-      expect(await tryStart()).toBe(inside ? "ok" : expect.stringContaining("outside_window"));
+      expect(await tryStart()).toEqual(inside ? "ok" : expect.stringContaining("outside_window"));
       await set(null, null);
       expect(await tryStart()).toBe("ok");
     } finally {

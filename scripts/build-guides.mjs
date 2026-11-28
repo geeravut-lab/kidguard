@@ -416,7 +416,8 @@ trainPages.push(
 
 const CSS2 = `.tb{width:100%;border-collapse:collapse;font-size:12.6px;line-height:1.45}.tb th{background:var(--p);color:#fff;text-align:left;padding:7px 9px;font-weight:700}.tb td{border:1px solid var(--line);padding:7px 9px;vertical-align:top}.tb tr:nth-child(even) td{background:#f7fbfc}.tb b{color:var(--ps)}.bul,.chk{list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:1.45}.bul li::before{content:"•";color:var(--p);font-weight:800;margin-right:7px}.chk li::before{content:"☐";color:var(--p);margin-right:8px;font-size:15px}.cols2{display:grid;grid-template-columns:1fr 1fr;gap:12px}`;
 const html = wrapHtml("KidGuard — คู่มือฉบับสั้น", pages).replace("</style>", CSS2 + "</style>");
-const html2 = wrapHtml("KidGuard — คู่มือฝึกอบรมครูและเจ้าหน้าที่", trainPages).replace("</style>", CSS2 + "</style>");
+const bold = (x) => x.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+const html2 = wrapHtml("KidGuard — คู่มือฝึกอบรมครูและเจ้าหน้าที่", trainPages.map(bold)).replace("</style>", CSS2 + "</style>");
 writeFileSync(path.join(OUT, "kidguard-quick-guide.html"), html);
 writeFileSync(path.join(OUT, "kidguard-training.html"), html2);
 
